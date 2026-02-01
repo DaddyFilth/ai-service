@@ -11,7 +11,7 @@ python3 --version
 # Check if pip is installed
 pip3 --version
 
-# Check if ffmpeg is installed
+# Check if ffmpeg is installed (optional)
 ffmpeg -version
 ```
 

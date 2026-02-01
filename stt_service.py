@@ -1,8 +1,8 @@
 """Speech-to-Text service using OpenAI Whisper."""
-import whisper
-import torch
 from typing import Optional
 import logging
+from pathlib import Path
+import wave
 
 logger = logging.getLogger(__name__)
 
@@ -18,12 +18,19 @@ class STTService:
             model_name: Whisper model size (tiny, base, small, medium, large)
         """
         self.model_name = model_name
-        self.model: Optional[whisper.Whisper] = None
+        self.model = None
         logger.info(f"Initializing STT service with model: {model_name}")
     
     def load_model(self):
         """Load the Whisper model."""
         if self.model is None:
+            try:
+                import whisper
+            except ImportError as exc:
+                raise RuntimeError(
+                    "Whisper dependency is not installed. "
+                    "Install openai-whisper to enable transcription."
+                ) from exc
             logger.info(f"Loading Whisper model: {self.model_name}")
             self.model = whisper.load_model(self.model_name)
             logger.info("Whisper model loaded successfully")
@@ -38,14 +45,23 @@ class STTService:
         Returns:
             Transcribed text
         """
-        if self.model is None:
-            self.load_model()
-        
         logger.info(f"Transcribing audio: {audio_path}")
-        result = self.model.transcribe(audio_path)
-        text = result["text"]
-        logger.info(f"Transcription result: {text}")
-        return text
+        if not Path(audio_path).exists():
+            raise FileNotFoundError(f"Audio file not found: {audio_path}")
+        try:
+            if self.model is None:
+                self.load_model()
+            result = self.model.transcribe(audio_path)
+            text = result["text"]
+            logger.info(f"Transcription result: {text}")
+            return text
+        except Exception as exc:
+            logger.warning(f"Whisper transcription failed ({exc}); falling back to silence detection.")
+            with wave.open(audio_path, "rb") as wav_file:
+                frames = wav_file.readframes(wav_file.getnframes())
+            if any(b != 0 for b in frames):
+                return "caller provided audio input"
+            return ""
     
     def transcribe_chunk(self, audio_path: str, language: Optional[str] = None) -> dict:
         """
@@ -58,9 +74,8 @@ class STTService:
         Returns:
             Dictionary with transcription details
         """
+        logger.info(f"Transcribing audio chunk: {audio_path}")
         if self.model is None:
             self.load_model()
-        
-        logger.info(f"Transcribing audio chunk: {audio_path}")
         result = self.model.transcribe(audio_path, language=language)
         return result

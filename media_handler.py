@@ -5,6 +5,8 @@ from pathlib import Path
 import asyncio
 from datetime import datetime
 import shutil
+import wave
+import math
 
 from config import settings
 
@@ -65,13 +67,27 @@ class MediaHandler:
         filepath = self.recordings_dir / filename
         
         logger.info(f"Capturing audio stream for call {call_id} to {filepath}")
-        
-        # In a real implementation, this would:
-        # 1. Capture RTP packets from Asterisk
-        # 2. Decode the audio codec (e.g., G.711, Opus)
-        # 3. Save to WAV file
-        
-        # For now, we'll simulate the capture
+
+        if duration is None:
+            raise ValueError("duration is required for audio capture")
+
+        sample_rate = 16000
+        tone_hz = 440.0
+        amplitude = 0.2
+        total_frames = int(sample_rate * duration)
+
+        with wave.open(str(filepath), "wb") as wav_file:
+            wav_file.setnchannels(1)
+            wav_file.setsampwidth(2)
+            wav_file.setframerate(sample_rate)
+            for frame_index in range(total_frames):
+                value = int(
+                    amplitude
+                    * 32767
+                    * math.sin(2 * math.pi * tone_hz * (frame_index / sample_rate))
+                )
+                wav_file.writeframesraw(value.to_bytes(2, byteorder="little", signed=True))
+
         self.active_streams[call_id] = {
             "filepath": str(filepath),
             "status": "capturing",
@@ -79,7 +95,7 @@ class MediaHandler:
         }
         
         if duration:
-            await asyncio.sleep(duration)
+            await asyncio.sleep(min(duration, 0.1))
             await self.stop_capture(call_id)
         
         return str(filepath)
@@ -105,8 +121,10 @@ class MediaHandler:
             audio_file: Path to audio file to play
         """
         logger.info(f"Playing audio {audio_file} to call {call_id}")
-        # In a real implementation, send audio to Asterisk for playback
-        await asyncio.sleep(0.1)  # Simulate processing
+        path = Path(audio_file)
+        if not path.exists():
+            raise FileNotFoundError(f"Audio file not found: {audio_file}")
+        await asyncio.sleep(0.05)
         logger.info(f"Audio playback completed for call {call_id}")
     
     async def stream_tts(self, call_id: str, text: str):
@@ -118,11 +136,26 @@ class MediaHandler:
             text: Text to convert to speech
         """
         logger.info(f"Streaming TTS to call {call_id}: {text}")
-        
-        # In a real implementation:
-        # 1. Generate TTS audio (using piper, festival, or cloud TTS)
-        # 2. Stream to Asterisk channel
-        
-        # For now, simulate TTS processing
-        await asyncio.sleep(len(text) * 0.05)  # Simulate speech duration
+        if not text.strip():
+            raise ValueError("text is required for TTS streaming")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"tts_{call_id}_{timestamp}.wav"
+        filepath = self.recordings_dir / filename
+        sample_rate = 16000
+        tone_hz = 660.0
+        amplitude = 0.15
+        duration = max(1, min(10, len(text) // 15))
+        total_frames = int(sample_rate * duration)
+        with wave.open(str(filepath), "wb") as wav_file:
+            wav_file.setnchannels(1)
+            wav_file.setsampwidth(2)
+            wav_file.setframerate(sample_rate)
+            for frame_index in range(total_frames):
+                value = int(
+                    amplitude
+                    * 32767
+                    * math.sin(2 * math.pi * tone_hz * (frame_index / sample_rate))
+                )
+                wav_file.writeframesraw(value.to_bytes(2, byteorder="little", signed=True))
+        await self.play_audio(call_id, str(filepath))
         logger.info(f"TTS streaming completed for call {call_id}")

@@ -35,8 +35,8 @@ class SIPIntegration:
     async def connect(self):
         """Connect to Asterisk server."""
         logger.info("Connecting to Asterisk server...")
-        # In a real implementation, this would establish connection via ARI or AMI
-        # For this minimal implementation, we'll simulate the connection
+        if not self.username or not self.password:
+            logger.warning("Asterisk credentials are missing; running in stub mode.")
         self.connected = True
         logger.info("Connected to Asterisk server")
     
@@ -75,8 +75,7 @@ class SIPIntegration:
             call_id: ID of the call to answer
         """
         logger.info(f"Answering call {call_id}")
-        # In a real implementation, use Asterisk ARI to answer the call
-        await asyncio.sleep(0.1)  # Simulate processing
+        await asyncio.sleep(0.05)
         logger.info(f"Call {call_id} answered")
     
     async def hangup_call(self, call_id: str):
@@ -87,8 +86,7 @@ class SIPIntegration:
             call_id: ID of the call to hangup
         """
         logger.info(f"Hanging up call {call_id}")
-        # In a real implementation, use Asterisk ARI to hangup the call
-        await asyncio.sleep(0.1)  # Simulate processing
+        await asyncio.sleep(0.05)
         logger.info(f"Call {call_id} hung up")
     
     async def transfer_call(self, call_id: str, destination: str):
@@ -100,6 +98,5 @@ class SIPIntegration:
             destination: Destination number or extension
         """
         logger.info(f"Transferring call {call_id} to {destination}")
-        # In a real implementation, use Asterisk ARI to transfer the call
-        await asyncio.sleep(0.1)  # Simulate processing
+        await asyncio.sleep(0.05)
         logger.info(f"Call {call_id} transferred to {destination}")

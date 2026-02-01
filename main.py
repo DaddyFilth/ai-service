@@ -33,7 +33,9 @@ class AICallService:
         self.decision_engine = DecisionEngine()
         self.action_router = ActionRouter(
             settings.recordings_dir,
-            min_free_space_mb=settings.min_free_space_mb
+            min_free_space_mb=settings.min_free_space_mb,
+            sip_integration=self.sip,
+            media_handler=self.media,
         )
         
         logger.info("All components initialized")
