@@ -55,7 +55,6 @@ class MediaHandler:
         Args:
             call_id: ID of the call
             duration: Duration to capture in seconds (None for continuous)
-            min_free_space_mb: Minimum free disk space required in megabytes
             
         Returns:
             Path to the captured audio file
