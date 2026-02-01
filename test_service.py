@@ -101,15 +101,11 @@ class TestSIPIntegration:
         assert sip.username is not None
         assert sip.password == ""
 
-    def test_initialization_with_password(self):
+    def test_initialization_with_password(self, monkeypatch):
         """Test SIP integration with configured password."""
-        original_password = settings.asterisk_password
-        try:
-            settings.asterisk_password = "supersecret"
-            sip = SIPIntegration()
-            assert sip.password == "supersecret"
-        finally:
-            settings.asterisk_password = original_password
+        monkeypatch.setattr(settings, "asterisk_password", "supersecret")
+        sip = SIPIntegration()
+        assert sip.password == "supersecret"
     
     @pytest.mark.asyncio
     async def test_handle_incoming_call(self):
