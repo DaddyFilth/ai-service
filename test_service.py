@@ -97,6 +97,8 @@ class TestSIPIntegration:
         assert sip is not None
         assert sip.host is not None
         assert sip.port is not None
+        assert sip.username is not None
+        assert sip.password == ""
     
     @pytest.mark.asyncio
     async def test_handle_incoming_call(self):
