@@ -1,4 +1,5 @@
 """Tests for the AI Call Service components."""
+import logging
 import pytest
 import asyncio
 from pathlib import Path
@@ -8,6 +9,8 @@ import shutil
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from config import settings
+from sip_integration import MISSING_PASSWORD_WARNING
 from decision_engine import DecisionEngine
 from action_router import ActionRouter
 from sip_integration import SIPIntegration
@@ -91,12 +94,41 @@ class TestActionRouter:
 class TestSIPIntegration:
     """Test SIP integration."""
     
-    def test_initialization(self):
+    def test_initialization(self, caplog):
         """Test SIP integration initialization."""
-        sip = SIPIntegration()
+        with caplog.at_level(logging.WARNING):
+            sip = SIPIntegration()
         assert sip is not None
         assert sip.host is not None
         assert sip.port is not None
+        assert sip.username == "ai_service"
+        assert sip.password == ""
+        assert sip.connected is False
+        assert MISSING_PASSWORD_WARNING in caplog.text
+
+    def test_initialization_with_password(self, monkeypatch, caplog):
+        """Test SIP integration with configured password."""
+        monkeypatch.setattr(settings, "asterisk_password", "Str0ng!Passw0rd")
+        with caplog.at_level(logging.WARNING):
+            sip = SIPIntegration()
+        assert sip.password == "Str0ng!Passw0rd"
+        assert sip.username == "ai_service"
+        assert MISSING_PASSWORD_WARNING not in caplog.text
+
+    @pytest.mark.asyncio
+    async def test_connect_uses_credentials(self, monkeypatch, caplog):
+        """Ensure connect works with configured credentials."""
+        monkeypatch.setattr(settings, "asterisk_password", "Str0ng!Passw0rd")
+        with caplog.at_level(logging.INFO):
+            sip = SIPIntegration()
+            await sip.connect()
+        assert sip.connected is True
+
+    def test_initialization_with_username(self, monkeypatch):
+        """Test SIP integration with configured username."""
+        monkeypatch.setattr(settings, "asterisk_username", "custom_user")
+        sip = SIPIntegration()
+        assert sip.username == "custom_user"
     
     @pytest.mark.asyncio
     async def test_handle_incoming_call(self):

@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     # Asterisk/SIP Configuration
     asterisk_host: str = "localhost"
     asterisk_port: int = 5060
-    asterisk_username: str = "admin"
-    asterisk_password: str = "secret"
+    asterisk_username: str = "ai_service"
+    asterisk_password: str = ""
     
     # Ollama Configuration
     ollama_host: str = "http://localhost:11434"

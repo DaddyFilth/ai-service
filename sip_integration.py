@@ -7,6 +7,9 @@ import json
 from config import settings
 
 logger = logging.getLogger(__name__)
+MISSING_PASSWORD_WARNING = (
+    "Asterisk password is not set; configure ASTERISK_PASSWORD for production use."
+)
 
 
 class SIPIntegration:
@@ -25,6 +28,8 @@ class SIPIntegration:
         self.username = settings.asterisk_username
         self.password = settings.asterisk_password
         self.connected = False
+        if not self.password:
+            logger.warning(MISSING_PASSWORD_WARNING)
         logger.info(f"SIP integration initialized for {self.host}:{self.port}")
     
     async def connect(self):

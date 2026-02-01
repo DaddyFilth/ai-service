@@ -91,8 +91,8 @@ vim .env
 # Asterisk/SIP Configuration
 ASTERISK_HOST=localhost        # Your Asterisk server IP
 ASTERISK_PORT=5060            # SIP port
-ASTERISK_USERNAME=admin       # Asterisk username
-ASTERISK_PASSWORD=secret      # Asterisk password
+ASTERISK_USERNAME=ai_service  # Asterisk username
+ASTERISK_PASSWORD=            # Asterisk password
 
 # Ollama Configuration
 OLLAMA_HOST=http://localhost:11434  # Ollama server URL
@@ -136,7 +136,7 @@ enabled = yes
 [ai_service]
 type = user
 read_only = no
-password = asterisk_secret
+password = CHANGE_ME_TO_STRONG_PASSWORD
 
 # Edit /etc/asterisk/http.conf
 [general]
