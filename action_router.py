@@ -99,7 +99,6 @@ class ActionRouter:
             Result of recording action
         """
         ensure_free_space(self.recordings_dir, self.min_free_space_mb)
-
         call_id = call_context.get("call_id", "unknown")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"voicemail_{call_id}_{timestamp}.wav"
