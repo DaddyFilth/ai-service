@@ -103,9 +103,9 @@ class TestSIPIntegration:
 
     def test_initialization_with_password(self, monkeypatch):
         """Test SIP integration with configured password."""
-        monkeypatch.setattr(settings, "asterisk_password", "supersecret")
+        monkeypatch.setattr(settings, "asterisk_password", "Str0ng!Passw0rd")
         sip = SIPIntegration()
-        assert sip.password == "supersecret"
+        assert sip.password == "Str0ng!Passw0rd"
         assert sip.username == "ai_service"
     
     @pytest.mark.asyncio
