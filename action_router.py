@@ -12,15 +12,17 @@ logger = logging.getLogger(__name__)
 class ActionRouter:
     """Routes calls to different actions based on AI decisions."""
     
-    def __init__(self, recordings_dir: str = "./recordings"):
+    def __init__(self, recordings_dir: str = "./recordings", min_free_space_mb: int = 0):
         """
         Initialize the action router.
         
         Args:
             recordings_dir: Directory for storing recordings
+            min_free_space_mb: Minimum free disk space required in megabytes
         """
         self.recordings_dir = Path(recordings_dir)
         self.recordings_dir.mkdir(parents=True, exist_ok=True)
+        self.min_free_space_mb = min_free_space_mb
         logger.info(f"Action router initialized with recordings dir: {self.recordings_dir}")
     
     async def route_action(self, decision: Dict[str, Any], call_context: Dict[str, Any]) -> Dict[str, Any]:
@@ -87,6 +89,10 @@ class ActionRouter:
         Returns:
             Result of recording action
         """
+        if self.min_free_space_mb > 0:
+            from media_handler import MediaHandler
+            MediaHandler(str(self.recordings_dir))._ensure_free_space(self.min_free_space_mb)
+
         call_id = call_context.get("call_id", "unknown")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"voicemail_{call_id}_{timestamp}.wav"

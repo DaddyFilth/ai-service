@@ -31,7 +31,10 @@ class AICallService:
         self.media = MediaHandler(settings.recordings_dir)
         self.stt = STTService()
         self.decision_engine = DecisionEngine()
-        self.action_router = ActionRouter(settings.recordings_dir)
+        self.action_router = ActionRouter(
+            settings.recordings_dir,
+            min_free_space_mb=settings.min_free_space_mb
+        )
         
         logger.info("All components initialized")
     
@@ -69,7 +72,11 @@ class AICallService:
             await self.media.stream_tts(call_context["call_id"], "Hello, please state your reason for calling.")
             
             # Capture caller's response
-            audio_file = await self.media.capture_audio_stream(call_context["call_id"], duration=5)
+            audio_file = await self.media.capture_audio_stream(
+                call_context["call_id"],
+                duration=5,
+                min_free_space_mb=settings.min_free_space_mb
+            )
             
             # Step 3: STT (Whisper) - Convert speech to text
             logger.info("Step 3: STT (Whisper) - Transcribing audio")
@@ -92,7 +99,11 @@ class AICallService:
             elif result["action"] == "voicemail":
                 await self.media.stream_tts(call_context["call_id"], result["greeting"])
                 # Continue recording voicemail
-                await self.media.capture_audio_stream(call_context["call_id"], duration=30)
+                await self.media.capture_audio_stream(
+                    call_context["call_id"],
+                    duration=30,
+                    min_free_space_mb=settings.min_free_space_mb
+                )
                 await self.sip.hangup_call(call_context["call_id"])
             elif result["action"] == "ask_question":
                 await self.media.stream_tts(call_context["call_id"], result["question"])

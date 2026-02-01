@@ -65,7 +65,7 @@ class TestActionRouter:
     @pytest.mark.asyncio
     async def test_record_voicemail(self):
         """Test recording voicemail."""
-        router = ActionRouter()
+        router = ActionRouter(min_free_space_mb=0)
         call_context = {"call_id": "test_002"}
         parameters = {}
         
@@ -128,6 +128,18 @@ class TestMediaHandler:
         media = MediaHandler()
         # This should complete without errors
         await media.stream_tts("test_call", "Hello world")
+
+    def test_disk_space_guard_allows(self):
+        """Ensure disk space guard allows when requirement is zero."""
+        media = MediaHandler()
+        media._ensure_free_space(0)
+
+    def test_disk_space_guard_blocks(self):
+        """Ensure disk space guard blocks if requirement exceeds free space."""
+        media = MediaHandler()
+        import pytest
+        with pytest.raises(RuntimeError):
+            media._ensure_free_space(10 ** 12)
 
 
 if __name__ == "__main__":

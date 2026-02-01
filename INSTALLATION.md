@@ -102,6 +102,7 @@ OLLAMA_MODEL=llama2                 # AI model to use
 SERVICE_HOST=0.0.0.0          # API server host (0.0.0.0 for all interfaces)
 SERVICE_PORT=8000             # API server port
 RECORDINGS_DIR=./recordings   # Directory for recordings
+MIN_FREE_SPACE_MB=100         # Minimum free disk space for recordings
 ```
 
 ## Step 5: (Optional) Install Asterisk

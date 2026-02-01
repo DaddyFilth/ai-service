@@ -4,6 +4,7 @@ from typing import Optional
 from pathlib import Path
 import asyncio
 from datetime import datetime
+import shutil
 
 logger = logging.getLogger(__name__)
 
@@ -22,18 +23,42 @@ class MediaHandler:
         self.recordings_dir.mkdir(parents=True, exist_ok=True)
         self.active_streams = {}
         logger.info(f"Media handler initialized with recordings dir: {self.recordings_dir}")
+
+    def _ensure_free_space(self, required_free_mb: int):
+        """
+        Ensure there is sufficient free disk space for recordings.
+
+        Args:
+            required_free_mb: Minimum free space in megabytes
+        """
+        if required_free_mb <= 0:
+            return
+        usage = shutil.disk_usage(self.recordings_dir)
+        free_mb = usage.free / (1024 * 1024)
+        if free_mb < required_free_mb:
+            raise RuntimeError(
+                f"Insufficient disk space in {self.recordings_dir}. "
+                f"Free {free_mb:.1f} MB, requires at least {required_free_mb} MB."
+            )
     
-    async def capture_audio_stream(self, call_id: str, duration: Optional[int] = None) -> str:
+    async def capture_audio_stream(
+        self,
+        call_id: str,
+        duration: Optional[int] = None,
+        min_free_space_mb: int = 0
+    ) -> str:
         """
         Capture audio from RTP stream.
         
         Args:
             call_id: ID of the call
             duration: Duration to capture in seconds (None for continuous)
+            min_free_space_mb: Minimum free disk space required in megabytes
             
         Returns:
             Path to the captured audio file
         """
+        self._ensure_free_space(min_free_space_mb)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"audio_{call_id}_{timestamp}.wav"
         filepath = self.recordings_dir / filename
