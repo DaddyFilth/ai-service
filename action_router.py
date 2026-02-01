@@ -18,7 +18,7 @@ class ActionRouter:
     def __init__(
         self,
         recordings_dir: str = "./recordings",
-        min_free_space_mb: int = settings.min_free_space_mb
+        min_free_space_mb: Optional[int] = None
     ):
         """
         Initialize the action router.
@@ -29,7 +29,9 @@ class ActionRouter:
         """
         self.recordings_dir = Path(recordings_dir)
         self.recordings_dir.mkdir(parents=True, exist_ok=True)
-        self.min_free_space_mb = min_free_space_mb
+        self.min_free_space_mb = (
+            min_free_space_mb if min_free_space_mb is not None else settings.min_free_space_mb
+        )
         logger.info(f"Action router initialized with recordings dir: {self.recordings_dir}")
     
     async def route_action(self, decision: Dict[str, Any], call_context: Dict[str, Any]) -> Dict[str, Any]:

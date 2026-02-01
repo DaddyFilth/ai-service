@@ -48,7 +48,7 @@ class MediaHandler:
         self,
         call_id: str,
         duration: Optional[int] = None,
-        min_free_space_mb: int = settings.min_free_space_mb
+        min_free_space_mb: Optional[int] = None
     ) -> str:
         """
         Capture audio from RTP stream.
@@ -61,6 +61,9 @@ class MediaHandler:
         Returns:
             Path to the captured audio file
         """
+        min_free_space_mb = (
+            min_free_space_mb if min_free_space_mb is not None else settings.min_free_space_mb
+        )
         ensure_free_space(self.recordings_dir, min_free_space_mb)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"audio_{call_id}_{timestamp}.wav"
