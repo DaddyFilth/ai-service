@@ -137,8 +137,11 @@ class TestMediaHandler:
     def test_disk_space_guard_blocks(self):
         """Ensure disk space guard blocks if requirement exceeds free space."""
         media = MediaHandler()
+        import shutil
+        free_bytes = shutil.disk_usage(media.recordings_dir).free
+        required_mb = (free_bytes // (1024 * 1024)) + 1
         with pytest.raises(RuntimeError, match=r"Insufficient disk space"):
-            ensure_free_space(media.recordings_dir, 10 ** 12)
+            ensure_free_space(media.recordings_dir, required_mb)
 
 
 if __name__ == "__main__":

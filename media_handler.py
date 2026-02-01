@@ -14,7 +14,7 @@ def ensure_free_space(recordings_dir: Path, required_free_mb: int):
 
     Args:
         recordings_dir: Directory to check for free space
-        required_free_mb: Minimum free space in megabytes
+        required_free_mb: Minimum free space in megabytes (<= 0 disables the check)
     """
     if required_free_mb <= 0:
         return
