@@ -42,15 +42,6 @@ class MediaHandler:
         self.active_streams = {}
         logger.info(f"Media handler initialized with recordings dir: {self.recordings_dir}")
 
-    def _ensure_free_space(self, required_free_mb: int):
-        """
-        Ensure there is sufficient free disk space for recordings.
-
-        Args:
-            required_free_mb: Minimum free space in megabytes
-        """
-        ensure_free_space(self.recordings_dir, required_free_mb)
-    
     async def capture_audio_stream(
         self,
         call_id: str,
@@ -68,7 +59,7 @@ class MediaHandler:
         Returns:
             Path to the captured audio file
         """
-        self._ensure_free_space(min_free_space_mb)
+        ensure_free_space(self.recordings_dir, min_free_space_mb)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"audio_{call_id}_{timestamp}.wav"
         filepath = self.recordings_dir / filename
