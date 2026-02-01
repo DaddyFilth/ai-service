@@ -6,6 +6,8 @@ import asyncio
 import subprocess
 from datetime import datetime
 
+from media_handler import ensure_free_space
+
 logger = logging.getLogger(__name__)
 
 
@@ -89,9 +91,7 @@ class ActionRouter:
         Returns:
             Result of recording action
         """
-        if self.min_free_space_mb > 0:
-            from media_handler import MediaHandler
-            MediaHandler(str(self.recordings_dir))._ensure_free_space(self.min_free_space_mb)
+        ensure_free_space(self.recordings_dir, self.min_free_space_mb)
 
         call_id = call_context.get("call_id", "unknown")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

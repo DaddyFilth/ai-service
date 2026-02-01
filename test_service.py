@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from decision_engine import DecisionEngine
 from action_router import ActionRouter
 from sip_integration import SIPIntegration
-from media_handler import MediaHandler
+from media_handler import MediaHandler, ensure_free_space
 
 
 class TestDecisionEngine:
@@ -132,14 +132,13 @@ class TestMediaHandler:
     def test_disk_space_guard_allows(self):
         """Ensure disk space guard allows when requirement is zero."""
         media = MediaHandler()
-        media._ensure_free_space(0)
+        ensure_free_space(media.recordings_dir, 0)
 
     def test_disk_space_guard_blocks(self):
         """Ensure disk space guard blocks if requirement exceeds free space."""
         media = MediaHandler()
-        import pytest
         with pytest.raises(RuntimeError):
-            media._ensure_free_space(10 ** 12)
+            ensure_free_space(media.recordings_dir, 10 ** 12)
 
 
 if __name__ == "__main__":

@@ -8,6 +8,24 @@ import shutil
 
 logger = logging.getLogger(__name__)
 
+def ensure_free_space(recordings_dir: Path, required_free_mb: int):
+    """
+    Ensure there is sufficient free disk space for recordings.
+
+    Args:
+        recordings_dir: Directory to check for free space
+        required_free_mb: Minimum free space in megabytes
+    """
+    if required_free_mb <= 0:
+        return
+    usage = shutil.disk_usage(recordings_dir)
+    free_mb = usage.free / (1024 * 1024)
+    if free_mb < required_free_mb:
+        raise RuntimeError(
+            f"Insufficient disk space in {recordings_dir}. "
+            f"Free {free_mb:.1f} MB, requires at least {required_free_mb} MB."
+        )
+
 
 class MediaHandler:
     """Handles RTP media streams for audio processing."""
@@ -31,15 +49,7 @@ class MediaHandler:
         Args:
             required_free_mb: Minimum free space in megabytes
         """
-        if required_free_mb <= 0:
-            return
-        usage = shutil.disk_usage(self.recordings_dir)
-        free_mb = usage.free / (1024 * 1024)
-        if free_mb < required_free_mb:
-            raise RuntimeError(
-                f"Insufficient disk space in {self.recordings_dir}. "
-                f"Free {free_mb:.1f} MB, requires at least {required_free_mb} MB."
-            )
+        ensure_free_space(self.recordings_dir, required_free_mb)
     
     async def capture_audio_stream(
         self,
