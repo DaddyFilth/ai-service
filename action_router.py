@@ -146,9 +146,6 @@ class ActionRouter:
         message = f"Playing TTS: {question}"
         if self.media_handler:
             await self.media_handler.stream_tts(call_id, question)
-        else:
-            status = "playing"
-            message = f"Playing TTS: {question}"
         result = {
             "action": "ask_question",
             "status": status,

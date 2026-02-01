@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 
 from main import AICallService
@@ -101,7 +101,7 @@ async def handle_incoming_call(call_request: CallRequest):
         call_status_store[call_request.call_id] = {
             "call_id": call_request.call_id,
             "status": "in_progress",
-            "started_at": datetime.utcnow().isoformat(),
+            "started_at": datetime.now(timezone.utc).isoformat(),
             "action": None,
             "message": None,
         }
@@ -111,7 +111,7 @@ async def handle_incoming_call(call_request: CallRequest):
                 "status": result.get("status", "success"),
                 "action": result.get("action"),
                 "message": result.get("message"),
-                "completed_at": datetime.utcnow().isoformat(),
+                "completed_at": datetime.now(timezone.utc).isoformat(),
             }
         )
         return CallResponse(
@@ -125,7 +125,7 @@ async def handle_incoming_call(call_request: CallRequest):
             "call_id": call_request.call_id,
             "status": "error",
             "error": str(e),
-            "completed_at": datetime.utcnow().isoformat(),
+            "completed_at": datetime.now(timezone.utc).isoformat(),
         }
         logger.error(f"Error handling call: {e}")
         raise HTTPException(status_code=500, detail=str(e))
