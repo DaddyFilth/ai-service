@@ -5,7 +5,7 @@ pydantic==2.5.0
 pydantic-settings==2.1.0
 
 # SIP/Asterisk integration
-requests==2.31.0
+requests==2.32.4
 websockets==12.0
 
 # Audio processing
@@ -14,7 +14,7 @@ pydub==0.25.1
 
 # Speech-to-Text (Whisper)
 openai-whisper==20231117
-torch==2.6.0
+torch==2.8.0
 torchaudio==2.6.0
 
 # Ollama integration
