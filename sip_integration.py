@@ -25,6 +25,8 @@ class SIPIntegration:
         self.username = settings.asterisk_username
         self.password = settings.asterisk_password
         self.connected = False
+        if not self.password:
+            logger.warning("Asterisk password is not set; configure ASTERISK_PASSWORD for production use.")
         logger.info(f"SIP integration initialized for {self.host}:{self.port}")
     
     async def connect(self):
