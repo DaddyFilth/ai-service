@@ -93,25 +93,20 @@ class TestActionRouter:
 class TestSIPIntegration:
     """Test SIP integration."""
     
-    def test_initialization(self):
+    def test_initialization(self, caplog):
         """Test SIP integration initialization."""
-        sip = SIPIntegration()
+        with caplog.at_level(logging.WARNING):
+            sip = SIPIntegration()
         assert sip is not None
         assert sip.host is not None
         assert sip.port is not None
         assert sip.username == "ai_service"
         assert sip.password == ""
         assert sip.connected is False
-
-    def test_warning_when_password_missing(self, caplog):
-        """Ensure a warning is logged when password is empty."""
-        with caplog.at_level(logging.WARNING):
-            sip = SIPIntegration()
-        assert sip is not None
-        assert sip.password == ""
         assert "Asterisk password is not set" in caplog.text
 
-    def test_initialization_with_password(self, monkeypatch, caplog):
+    @pytest.mark.asyncio
+    async def test_initialization_with_password(self, monkeypatch, caplog):
         """Test SIP integration with configured password."""
         monkeypatch.setattr(settings, "asterisk_password", "Str0ng!Passw0rd")
         with caplog.at_level(logging.WARNING):
@@ -119,6 +114,8 @@ class TestSIPIntegration:
         assert sip.password == "Str0ng!Passw0rd"
         assert sip.username == "ai_service"
         assert "Asterisk password is not set" not in caplog.text
+        await sip.connect()
+        assert sip.connected is True
 
     def test_initialization_with_username(self, monkeypatch):
         """Test SIP integration with configured username."""
