@@ -10,6 +10,7 @@ import shutil
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from config import settings
+from sip_integration import MISSING_PASSWORD_WARNING
 from decision_engine import DecisionEngine
 from action_router import ActionRouter
 from sip_integration import SIPIntegration
@@ -103,7 +104,7 @@ class TestSIPIntegration:
         assert sip.username == "ai_service"
         assert sip.password == ""
         assert sip.connected is False
-        assert "Asterisk password is not set" in caplog.text
+        assert MISSING_PASSWORD_WARNING in caplog.text
 
     def test_initialization_with_password(self, monkeypatch, caplog):
         """Test SIP integration with configured password."""
@@ -118,7 +119,7 @@ class TestSIPIntegration:
     async def test_connect_uses_credentials(self, monkeypatch, caplog):
         """Ensure connect uses configured credentials."""
         monkeypatch.setattr(settings, "asterisk_password", "Str0ng!Passw0rd")
-        with caplog.at_level(logging.INFO):
+        with caplog.at_level(logging.DEBUG):
             sip = SIPIntegration()
             await sip.connect()
         assert sip.connected is True
