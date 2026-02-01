@@ -6,6 +6,7 @@ import asyncio
 import subprocess
 from datetime import datetime
 
+from config import settings
 from media_handler import ensure_free_space
 
 logger = logging.getLogger(__name__)
@@ -14,7 +15,11 @@ logger = logging.getLogger(__name__)
 class ActionRouter:
     """Routes calls to different actions based on AI decisions."""
     
-    def __init__(self, recordings_dir: str = "./recordings", min_free_space_mb: int = 0):
+    def __init__(
+        self,
+        recordings_dir: str = "./recordings",
+        min_free_space_mb: int = settings.min_free_space_mb
+    ):
         """
         Initialize the action router.
         

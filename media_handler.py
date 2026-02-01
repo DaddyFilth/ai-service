@@ -6,6 +6,8 @@ import asyncio
 from datetime import datetime
 import shutil
 
+from config import settings
+
 logger = logging.getLogger(__name__)
 
 def ensure_free_space(recordings_dir: Path, required_free_mb: int):
@@ -46,7 +48,7 @@ class MediaHandler:
         self,
         call_id: str,
         duration: Optional[int] = None,
-        min_free_space_mb: int = 0
+        min_free_space_mb: int = settings.min_free_space_mb
     ) -> str:
         """
         Capture audio from RTP stream.
