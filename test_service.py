@@ -105,15 +105,19 @@ class TestSIPIntegration:
     def test_warning_when_password_missing(self, caplog):
         """Ensure a warning is logged when password is empty."""
         with caplog.at_level("WARNING"):
-            SIPIntegration()
+            sip = SIPIntegration()
+        assert sip is not None
+        assert sip.password == ""
         assert "Asterisk password is not set" in caplog.text
 
-    def test_initialization_with_password(self, monkeypatch):
+    def test_initialization_with_password(self, monkeypatch, caplog):
         """Test SIP integration with configured password."""
         monkeypatch.setattr(settings, "asterisk_password", "Str0ng!Passw0rd")
-        sip = SIPIntegration()
+        with caplog.at_level("WARNING"):
+            sip = SIPIntegration()
         assert sip.password == "Str0ng!Passw0rd"
         assert sip.username == "ai_service"
+        assert "Asterisk password is not set" not in caplog.text
 
     def test_initialization_with_username(self, monkeypatch):
         """Test SIP integration with configured username."""
