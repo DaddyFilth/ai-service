@@ -1,4 +1,5 @@
 """Tests for the AI Call Service components."""
+import logging
 import pytest
 import asyncio
 from pathlib import Path
@@ -104,7 +105,7 @@ class TestSIPIntegration:
 
     def test_warning_when_password_missing(self, caplog):
         """Ensure a warning is logged when password is empty."""
-        with caplog.at_level("WARNING"):
+        with caplog.at_level(logging.WARNING):
             sip = SIPIntegration()
         assert sip is not None
         assert sip.password == ""
@@ -113,7 +114,7 @@ class TestSIPIntegration:
     def test_initialization_with_password(self, monkeypatch, caplog):
         """Test SIP integration with configured password."""
         monkeypatch.setattr(settings, "asterisk_password", "Str0ng!Passw0rd")
-        with caplog.at_level("WARNING"):
+        with caplog.at_level(logging.WARNING):
             sip = SIPIntegration()
         assert sip.password == "Str0ng!Passw0rd"
         assert sip.username == "ai_service"
