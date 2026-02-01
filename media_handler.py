@@ -21,11 +21,11 @@ def ensure_free_space(recordings_dir: Path, required_free_mb: int):
     if required_free_mb <= 0:
         return
     usage = shutil.disk_usage(recordings_dir)
-    free_mb = usage.free / (1024 * 1024)
-    if free_mb < required_free_mb:
+    required_free_bytes = required_free_mb * 1024 * 1024
+    if usage.free < required_free_bytes:
         raise RuntimeError(
             f"Insufficient disk space in {recordings_dir}. "
-            f"Free {free_mb:.1f} MB, requires at least {required_free_mb} MB."
+            f"Free {usage.free / (1024 * 1024):.1f} MB, requires at least {required_free_mb} MB."
         )
 
 

@@ -129,6 +129,7 @@ class TestMediaHandler:
         media = MediaHandler()
         # This should complete without errors
         await media.stream_tts("test_call", "Hello world")
+        assert True
 
     def test_disk_space_guard_allows(self):
         """Ensure disk space guard allows when requirement is zero."""
