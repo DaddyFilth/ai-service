@@ -74,8 +74,7 @@ class AICallService:
             # Capture caller's response
             audio_file = await self.media.capture_audio_stream(
                 call_context["call_id"],
-                duration=5,
-                min_free_space_mb=settings.min_free_space_mb
+                duration=5
             )
             
             # Step 3: STT (Whisper) - Convert speech to text
@@ -101,8 +100,7 @@ class AICallService:
                 # Continue recording voicemail
                 await self.media.capture_audio_stream(
                     call_context["call_id"],
-                    duration=30,
-                    min_free_space_mb=settings.min_free_space_mb
+                    duration=30
                 )
                 await self.sip.hangup_call(call_context["call_id"])
             elif result["action"] == "ask_question":
