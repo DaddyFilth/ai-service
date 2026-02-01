@@ -67,9 +67,15 @@ chmod +x setup.sh
 
 The setup script will:
 - Create a Python virtual environment
-- Install all Python dependencies
+- Install core Python dependencies
 - Create configuration files
 - Set up the recordings directory
+
+Optional STT/audio dependencies (Whisper, PyAudio, Torch):
+```bash
+source venv/bin/activate
+pip install -r requirements-optional.txt
+```
 
 ## Step 4: Configure the Service
 

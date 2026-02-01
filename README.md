@@ -55,6 +55,11 @@ cd ai-service
 pip install -r requirements.txt
 ```
 
+Optional (for Whisper STT and audio capture):
+```bash
+pip install -r requirements-optional.txt
+```
+
 3. Copy and configure environment variables:
 ```bash
 cp .env.example .env

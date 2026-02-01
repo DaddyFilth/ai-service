@@ -1,8 +1,11 @@
 """Speech-to-Text service using OpenAI Whisper."""
-import whisper
-import torch
 from typing import Optional
 import logging
+
+try:
+    import whisper
+except ImportError:  # pragma: no cover - optional dependency
+    whisper = None
 
 logger = logging.getLogger(__name__)
 
@@ -18,11 +21,16 @@ class STTService:
             model_name: Whisper model size (tiny, base, small, medium, large)
         """
         self.model_name = model_name
-        self.model: Optional[whisper.Whisper] = None
+        self.model: Optional["whisper.Whisper"] = None
         logger.info(f"Initializing STT service with model: {model_name}")
     
     def load_model(self):
         """Load the Whisper model."""
+        if whisper is None:
+            raise RuntimeError(
+                "openai-whisper is not installed. Install optional dependencies with "
+                "`pip install -r requirements-optional.txt`."
+            )
         if self.model is None:
             logger.info(f"Loading Whisper model: {self.model_name}")
             self.model = whisper.load_model(self.model_name)

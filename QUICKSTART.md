@@ -86,6 +86,11 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+For Whisper STT/audio support:
+```bash
+pip install -r requirements-optional.txt
+```
+
 **"Cannot connect to Ollama"**
 ```bash
 ollama serve

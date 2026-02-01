@@ -40,6 +40,10 @@ if [ $? -ne 0 ]; then
     echo "You may need to install system dependencies first"
 fi
 
+echo ""
+echo "Optional: install Whisper/audio dependencies with:"
+echo "  pip install -r requirements-optional.txt"
+
 # Create .env file if it doesn't exist
 if [ ! -f .env ]; then
     echo ""

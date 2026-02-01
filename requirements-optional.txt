@@ -1,0 +1,7 @@
+# Audio processing (system deps may be required)
+pyaudio==0.2.14
+
+# Speech-to-Text (Whisper)
+openai-whisper==20231117
+torch==2.6.0
+torchaudio==2.6.0
