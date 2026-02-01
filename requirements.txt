@@ -1,5 +1,5 @@
 # Core dependencies
-fastapi==0.104.1
+fastapi==0.109.1
 uvicorn==0.24.0
 pydantic==2.5.0
 pydantic-settings==2.1.0
@@ -14,8 +14,8 @@ pydub==0.25.1
 
 # Speech-to-Text (Whisper)
 openai-whisper==20231117
-torch==2.1.0
-torchaudio==2.1.0
+torch==2.6.0
+torchaudio==2.6.0
 
 # Ollama integration
 ollama==0.1.6
