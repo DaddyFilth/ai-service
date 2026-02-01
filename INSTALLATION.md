@@ -136,7 +136,7 @@ enabled = yes
 [ai_service]
 type = user
 read_only = no
-password = <set-a-strong-password>
+password = CHANGE_ME_TO_STRONG_PASSWORD
 
 # Edit /etc/asterisk/http.conf
 [general]
