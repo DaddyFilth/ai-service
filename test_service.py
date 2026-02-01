@@ -8,6 +8,7 @@ import shutil
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from config import settings
 from decision_engine import DecisionEngine
 from action_router import ActionRouter
 from sip_integration import SIPIntegration
@@ -99,6 +100,16 @@ class TestSIPIntegration:
         assert sip.port is not None
         assert sip.username is not None
         assert sip.password == ""
+
+    def test_initialization_with_password(self):
+        """Test SIP integration with configured password."""
+        original_password = settings.asterisk_password
+        try:
+            settings.asterisk_password = "supersecret"
+            sip = SIPIntegration()
+            assert sip.password == "supersecret"
+        finally:
+            settings.asterisk_password = original_password
     
     @pytest.mark.asyncio
     async def test_handle_incoming_call(self):
