@@ -3,6 +3,7 @@ import pytest
 import asyncio
 from pathlib import Path
 import sys
+import shutil
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -137,7 +138,6 @@ class TestMediaHandler:
     def test_disk_space_guard_blocks(self):
         """Ensure disk space guard blocks if requirement exceeds free space."""
         media = MediaHandler()
-        import shutil
         free_bytes = shutil.disk_usage(media.recordings_dir).free
         required_mb = (free_bytes // (1024 * 1024)) + 1
         with pytest.raises(RuntimeError, match=r"Insufficient disk space"):
