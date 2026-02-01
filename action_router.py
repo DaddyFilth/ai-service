@@ -2,8 +2,6 @@
 import logging
 from typing import Dict, Any, Optional
 from pathlib import Path
-import asyncio
-import subprocess
 from datetime import datetime
 
 from config import settings
@@ -18,7 +16,9 @@ class ActionRouter:
     def __init__(
         self,
         recordings_dir: str = "./recordings",
-        min_free_space_mb: Optional[int] = None
+        min_free_space_mb: Optional[int] = None,
+        sip_integration: Optional[Any] = None,
+        media_handler: Optional[Any] = None,
     ):
         """
         Initialize the action router.
@@ -32,6 +32,8 @@ class ActionRouter:
         self.min_free_space_mb = (
             min_free_space_mb if min_free_space_mb is not None else settings.min_free_space_mb
         )
+        self.sip_integration = sip_integration
+        self.media_handler = media_handler
         if self.min_free_space_mb < 0:
             raise ValueError("min_free_space_mb must be >= 0")
         logger.info(f"Action router initialized with recordings dir: {self.recordings_dir}")
@@ -77,8 +79,8 @@ class ActionRouter:
         
         logger.info(f"Forwarding call {call_context.get('call_id')} to {destination}")
         
-        # In a real implementation, this would use Asterisk ARI or AMI
-        # For now, we'll simulate the action
+        if self.sip_integration:
+            await self.sip_integration.transfer_call(call_context.get("call_id"), destination)
         result = {
             "action": "forward",
             "status": "success",
@@ -108,15 +110,18 @@ class ActionRouter:
         
         logger.info(f"Recording voicemail for call {call_id} to {filepath}")
         
-        # In a real implementation, this would interface with Asterisk recording
-        # For now, we'll prepare the recording configuration
+        greeting = parameters.get("greeting", "Please leave a message after the beep.")
+        if self.media_handler:
+            await self.media_handler.stream_tts(call_id, greeting)
+            await self.media_handler.capture_audio_stream(call_id, duration=30)
+            await self.media_handler.stop_capture(call_id)
         result = {
             "action": "voicemail",
-            "status": "recording",
+            "status": "recorded" if self.media_handler else "recording",
             "filepath": str(filepath),
             "call_id": call_id,
-            "message": "Recording voicemail message",
-            "greeting": parameters.get("greeting", "Please leave a message after the beep.")
+            "message": "Voicemail recorded" if self.media_handler else "Recording voicemail message",
+            "greeting": greeting
         }
         
         return result
@@ -137,14 +142,16 @@ class ActionRouter:
         
         logger.info(f"Asking question to call {call_id}: {question}")
         
-        # In a real implementation, this would use TTS engine (e.g., piper, festival, or cloud TTS)
-        # and play the audio through Asterisk
+        status = "playing"
+        message = f"Playing TTS: {question}"
+        if self.media_handler:
+            await self.media_handler.stream_tts(call_id, question)
         result = {
             "action": "ask_question",
-            "status": "playing",
+            "status": status,
             "question": question,
             "call_id": call_id,
-            "message": f"Playing TTS: {question}",
+            "message": message,
             "next_action": "wait_for_response"
         }
         

@@ -21,17 +21,17 @@ Before installing the AI Call Service, ensure you have the following:
 ### Ubuntu/Debian
 ```bash
 sudo apt update
-sudo apt install -y python3 python3-pip python3-venv ffmpeg portaudio19-dev
+sudo apt install -y python3 python3-pip python3-venv
 ```
 
 ### CentOS/RHEL
 ```bash
-sudo yum install -y python3 python3-pip ffmpeg portaudio-devel
+sudo yum install -y python3 python3-pip
 ```
 
 ### macOS
 ```bash
-brew install python ffmpeg portaudio
+brew install python
 ```
 
 ## Step 2: Install Ollama

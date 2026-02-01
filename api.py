@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 import asyncio
+from datetime import datetime, timezone
 import logging
 
 from main import AICallService
@@ -20,6 +21,7 @@ app = FastAPI(title="AI Call Service API", version="1.0.0")
 
 # Global service instance
 service: Optional[AICallService] = None
+call_status_store: Dict[str, Dict[str, Any]] = {}
 
 
 class CallRequest(BaseModel):
@@ -96,7 +98,22 @@ async def handle_incoming_call(call_request: CallRequest):
     logger.info(f"Received incoming call: {call_data}")
     
     try:
+        call_status_store[call_request.call_id] = {
+            "call_id": call_request.call_id,
+            "status": "in_progress",
+            "started_at": datetime.now(timezone.utc).isoformat(),
+            "action": None,
+            "message": None,
+        }
         result = await service.handle_call(call_data)
+        call_status_store[call_request.call_id].update(
+            {
+                "status": result.get("status", "success"),
+                "action": result.get("action"),
+                "message": result.get("message"),
+                "completed_at": datetime.now(timezone.utc).isoformat(),
+            }
+        )
         return CallResponse(
             status=result.get("status", "success"),
             call_id=call_request.call_id,
@@ -104,6 +121,12 @@ async def handle_incoming_call(call_request: CallRequest):
             message=result.get("message")
         )
     except Exception as e:
+        call_status_store[call_request.call_id] = {
+            "call_id": call_request.call_id,
+            "status": "error",
+            "error": str(e),
+            "completed_at": datetime.now(timezone.utc).isoformat(),
+        }
         logger.error(f"Error handling call: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -111,12 +134,10 @@ async def handle_incoming_call(call_request: CallRequest):
 @app.get("/call/{call_id}/status")
 async def get_call_status(call_id: str):
     """Get the status of a specific call."""
-    # In a real implementation, this would track call states
-    return {
-        "call_id": call_id,
-        "status": "active",
-        "message": "Call status tracking not yet implemented"
-    }
+    status = call_status_store.get(call_id)
+    if not status:
+        raise HTTPException(status_code=404, detail="Call ID not found")
+    return status
 
 
 if __name__ == "__main__":

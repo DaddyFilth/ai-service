@@ -231,7 +231,7 @@ Users can easily extend:
 - **PBX**: Asterisk
 - **Config**: Pydantic Settings
 - **Async**: asyncio
-- **Audio**: PyAudio, FFmpeg
+- **Audio**: WAV tone generation
 
 ## Project Stats
 
