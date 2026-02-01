@@ -98,7 +98,7 @@ class TestSIPIntegration:
         assert sip is not None
         assert sip.host is not None
         assert sip.port is not None
-        assert sip.username is not None
+        assert sip.username == "ai_service"
         assert sip.password == ""
 
     def test_initialization_with_password(self, monkeypatch):
