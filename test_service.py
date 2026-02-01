@@ -106,6 +106,7 @@ class TestSIPIntegration:
         monkeypatch.setattr(settings, "asterisk_password", "supersecret")
         sip = SIPIntegration()
         assert sip.password == "supersecret"
+        assert sip.username == "ai_service"
     
     @pytest.mark.asyncio
     async def test_handle_incoming_call(self):
