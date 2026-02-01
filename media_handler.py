@@ -10,22 +10,22 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
-def ensure_free_space(recordings_dir: Path, required_free_mb: int):
+def ensure_free_space(recordings_dir: Path, min_free_mb: int):
     """
     Ensure there is sufficient free disk space for recordings.
 
     Args:
         recordings_dir: Directory to check for free space
-        required_free_mb: Minimum free space in megabytes (<= 0 disables the check)
+        min_free_mb: Minimum free space in megabytes (<= 0 disables the check)
     """
-    if required_free_mb <= 0:
+    if min_free_mb <= 0:
         return
     usage = shutil.disk_usage(recordings_dir)
-    required_free_bytes = required_free_mb * 1024 * 1024
+    required_free_bytes = min_free_mb * 1024 * 1024
     if usage.free < required_free_bytes:
         raise RuntimeError(
             f"Insufficient disk space in {recordings_dir}. "
-            f"Free {usage.free / (1024 * 1024):.1f} MB, requires at least {required_free_mb} MB."
+            f"Free {usage.free / (1024 * 1024):.1f} MB, requires at least {min_free_mb} MB."
         )
 
 
@@ -47,8 +47,7 @@ class MediaHandler:
     async def capture_audio_stream(
         self,
         call_id: str,
-        duration: Optional[int] = None,
-        min_free_space_mb: Optional[int] = None
+        duration: Optional[int] = None
     ) -> str:
         """
         Capture audio from RTP stream.
@@ -61,10 +60,7 @@ class MediaHandler:
         Returns:
             Path to the captured audio file
         """
-        min_free_space_mb = (
-            min_free_space_mb if min_free_space_mb is not None else settings.min_free_space_mb
-        )
-        ensure_free_space(self.recordings_dir, min_free_space_mb)
+        ensure_free_space(self.recordings_dir, settings.min_free_space_mb)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"audio_{call_id}_{timestamp}.wav"
         filepath = self.recordings_dir / filename
