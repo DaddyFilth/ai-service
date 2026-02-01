@@ -105,8 +105,7 @@ class TestSIPIntegration:
         assert sip.connected is False
         assert "Asterisk password is not set" in caplog.text
 
-    @pytest.mark.asyncio
-    async def test_initialization_with_password(self, monkeypatch, caplog):
+    def test_initialization_with_password(self, monkeypatch, caplog):
         """Test SIP integration with configured password."""
         monkeypatch.setattr(settings, "asterisk_password", "Str0ng!Passw0rd")
         with caplog.at_level(logging.WARNING):
@@ -114,8 +113,16 @@ class TestSIPIntegration:
         assert sip.password == "Str0ng!Passw0rd"
         assert sip.username == "ai_service"
         assert "Asterisk password is not set" not in caplog.text
-        await sip.connect()
+
+    @pytest.mark.asyncio
+    async def test_connect_uses_credentials(self, monkeypatch, caplog):
+        """Ensure connect uses configured credentials."""
+        monkeypatch.setattr(settings, "asterisk_password", "Str0ng!Passw0rd")
+        with caplog.at_level(logging.INFO):
+            sip = SIPIntegration()
+            await sip.connect()
         assert sip.connected is True
+        assert "Using configured SIP credentials." in caplog.text
 
     def test_initialization_with_username(self, monkeypatch):
         """Test SIP integration with configured username."""

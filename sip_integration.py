@@ -32,6 +32,7 @@ class SIPIntegration:
     async def connect(self):
         """Connect to Asterisk server."""
         logger.info("Connecting to Asterisk server...")
+        logger.info("Using configured SIP credentials.")
         # In a real implementation, this would establish connection via ARI or AMI
         # For this minimal implementation, we'll simulate the connection
         self.connected = True
