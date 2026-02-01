@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     service_host: str = "0.0.0.0"
     service_port: int = 8000
     recordings_dir: str = "./recordings"
+    min_free_space_mb: int = 100
     
     class Config:
         env_file = ".env"

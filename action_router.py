@@ -6,21 +6,34 @@ import asyncio
 import subprocess
 from datetime import datetime
 
+from config import settings
+from media_handler import ensure_free_space
+
 logger = logging.getLogger(__name__)
 
 
 class ActionRouter:
     """Routes calls to different actions based on AI decisions."""
     
-    def __init__(self, recordings_dir: str = "./recordings"):
+    def __init__(
+        self,
+        recordings_dir: str = "./recordings",
+        min_free_space_mb: Optional[int] = None
+    ):
         """
         Initialize the action router.
         
         Args:
             recordings_dir: Directory for storing recordings
+            min_free_space_mb: Minimum free disk space required in megabytes
         """
         self.recordings_dir = Path(recordings_dir)
         self.recordings_dir.mkdir(parents=True, exist_ok=True)
+        self.min_free_space_mb = (
+            min_free_space_mb if min_free_space_mb is not None else settings.min_free_space_mb
+        )
+        if self.min_free_space_mb < 0:
+            raise ValueError("min_free_space_mb must be >= 0")
         logger.info(f"Action router initialized with recordings dir: {self.recordings_dir}")
     
     async def route_action(self, decision: Dict[str, Any], call_context: Dict[str, Any]) -> Dict[str, Any]:
@@ -87,6 +100,7 @@ class ActionRouter:
         Returns:
             Result of recording action
         """
+        ensure_free_space(self.recordings_dir, self.min_free_space_mb)
         call_id = call_context.get("call_id", "unknown")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"voicemail_{call_id}_{timestamp}.wav"

@@ -76,6 +76,7 @@ Edit `.env` file with your settings:
 - `OLLAMA_HOST`: Ollama server URL (default: http://localhost:11434)
 - `OLLAMA_MODEL`: AI model to use (default: llama2)
 - `SERVICE_PORT`: API server port (default: 8000)
+- `MIN_FREE_SPACE_MB`: Minimum free disk space for recordings (default: 100 MB)
 
 ## Usage
 
