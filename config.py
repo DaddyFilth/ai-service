@@ -13,7 +13,13 @@ class Settings:
     def __init__(self):
         # Asterisk/SIP Configuration
         self.asterisk_host: str = os.getenv("ASTERISK_HOST", "localhost")
-        self.asterisk_port: int = int(os.getenv("ASTERISK_PORT", "5060"))
+        try:
+            self.asterisk_port: int = int(os.getenv("ASTERISK_PORT", "5060"))
+        except ValueError:
+            raise ValueError(
+                f"Invalid ASTERISK_PORT environment variable: {os.getenv('ASTERISK_PORT')}. "
+                "Must be a valid integer."
+            )
         self.asterisk_username: str = os.getenv("ASTERISK_USERNAME", "ai_service")
         self.asterisk_password: str = os.getenv("ASTERISK_PASSWORD", "")
         
@@ -23,9 +29,21 @@ class Settings:
         
         # Service Configuration
         self.service_host: str = os.getenv("SERVICE_HOST", "0.0.0.0")
-        self.service_port: int = int(os.getenv("SERVICE_PORT", "8000"))
+        try:
+            self.service_port: int = int(os.getenv("SERVICE_PORT", "8000"))
+        except ValueError:
+            raise ValueError(
+                f"Invalid SERVICE_PORT environment variable: {os.getenv('SERVICE_PORT')}. "
+                "Must be a valid integer."
+            )
         self.recordings_dir: str = os.getenv("RECORDINGS_DIR", "./recordings")
-        self.min_free_space_mb: int = int(os.getenv("MIN_FREE_SPACE_MB", "100"))
+        try:
+            self.min_free_space_mb: int = int(os.getenv("MIN_FREE_SPACE_MB", "100"))
+        except ValueError:
+            raise ValueError(
+                f"Invalid MIN_FREE_SPACE_MB environment variable: {os.getenv('MIN_FREE_SPACE_MB')}. "
+                "Must be a valid integer."
+            )
 
 
 # Global settings instance
