@@ -61,7 +61,7 @@ def main():
             'expected_classes': ['AICallService']
         },
         'api.py': {
-            'description': 'FastAPI Web Server',
+            'description': 'Aiohttp Web Server',
             'expected_classes': ['CallRequest', 'CallResponse']
         }
     }
@@ -120,7 +120,7 @@ def main():
         print()
         print("ORCHESTRATION:")
         print("  • Main Service: main.py [AICallService]")
-        print("  • REST API: api.py [FastAPI endpoints]")
+        print("  • REST API: api.py [Aiohttp endpoints]")
         print()
         print("CONFIGURATION:")
         print("  • Settings: config.py [Settings]")

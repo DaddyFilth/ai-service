@@ -90,8 +90,6 @@ python main.py
 #### As a web API:
 ```bash
 python api.py
-# or
-uvicorn api:app --host 0.0.0.0 --port 8000
 ```
 
 ### Testing the API

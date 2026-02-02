@@ -1,30 +1,31 @@
 """Configuration management for the AI service."""
-from pydantic_settings import BaseSettings
+import os
 from typing import Optional
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
-class Settings(BaseSettings):
+class Settings:
     """Application settings loaded from environment variables."""
     
-    # Asterisk/SIP Configuration
-    asterisk_host: str = "localhost"
-    asterisk_port: int = 5060
-    asterisk_username: str = "ai_service"
-    asterisk_password: str = ""
-    
-    # Ollama Configuration
-    ollama_host: str = "http://localhost:11434"
-    ollama_model: str = "llama2"
-    
-    # Service Configuration
-    service_host: str = "0.0.0.0"
-    service_port: int = 8000
-    recordings_dir: str = "./recordings"
-    min_free_space_mb: int = 100
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    def __init__(self):
+        # Asterisk/SIP Configuration
+        self.asterisk_host: str = os.getenv("ASTERISK_HOST", "localhost")
+        self.asterisk_port: int = int(os.getenv("ASTERISK_PORT", "5060"))
+        self.asterisk_username: str = os.getenv("ASTERISK_USERNAME", "ai_service")
+        self.asterisk_password: str = os.getenv("ASTERISK_PASSWORD", "")
+        
+        # Ollama Configuration
+        self.ollama_host: str = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+        self.ollama_model: str = os.getenv("OLLAMA_MODEL", "llama2")
+        
+        # Service Configuration
+        self.service_host: str = os.getenv("SERVICE_HOST", "0.0.0.0")
+        self.service_port: int = int(os.getenv("SERVICE_PORT", "8000"))
+        self.recordings_dir: str = os.getenv("RECORDINGS_DIR", "./recordings")
+        self.min_free_space_mb: int = int(os.getenv("MIN_FREE_SPACE_MB", "100"))
 
 
 # Global settings instance

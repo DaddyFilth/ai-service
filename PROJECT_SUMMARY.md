@@ -31,7 +31,7 @@ Caller (SIP/WebRTC)
 5. **decision_engine.py** - AI decision making using Ollama
 6. **action_router.py** - Action routing (Forward/Voicemail/TTS)
 7. **main.py** - Main orchestrator tying all components together
-8. **api.py** - FastAPI REST API server
+8. **api.py** - Aiohttp REST API server
 
 ### Testing & Demo
 9. **test_service.py** - Unit tests for all components
@@ -225,11 +225,11 @@ Users can easily extend:
 ## Technology Stack
 
 - **Language**: Python 3.8+
-- **Web Framework**: FastAPI
+- **Web Framework**: aiohttp
 - **AI Engine**: Ollama
 - **Speech-to-Text**: OpenAI Whisper
 - **PBX**: Asterisk
-- **Config**: Pydantic Settings
+- **Config**: Environment variables
 - **Async**: asyncio
 - **Audio**: WAV tone generation
 
