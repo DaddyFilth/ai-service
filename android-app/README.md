@@ -2,6 +2,13 @@
 
 This Android application connects to the AI Call Service running on your computer and allows you to simulate calls and test the service.
 
+## Quick Links
+
+- **[Quick Start Guide](QUICKSTART.md)** - Get up and running fast
+- **[Build Guide](BUILD_GUIDE.md)** - Detailed build instructions
+- **[Architecture](ARCHITECTURE.md)** - Technical architecture and design
+- **[Troubleshooting](TROUBLESHOOTING.md)** - Common issues and solutions
+
 ## Features
 
 - Connect to AI Service API running on a computer
@@ -22,6 +29,23 @@ This Android application connects to the AI Call Service running on your compute
 - Android SDK (automatically downloaded by Gradle)
 
 ### Build Instructions
+
+#### Quick Verification (Recommended)
+
+Before building, verify your environment:
+```bash
+cd android-app
+./verify-build-env.sh
+```
+
+This script checks:
+- Java installation (version 11+)
+- Gradle wrapper files
+- Project structure
+- Internet connection
+- Disk space
+
+#### Build the APK
 
 1. Navigate to the android-app directory:
    ```bash
