@@ -34,6 +34,7 @@ Caller (SIP/WebRTC)
   - **Forward**: Route calls to specific extensions/numbers
   - **Voicemail**: Record messages
   - **Ask Question**: Interactive TTS-based conversation
+- **Android Client App**: Connect to the AI service from your Android device
 
 ## Requirements
 
@@ -151,6 +152,30 @@ python -c "from stt_service import STTService; stt = STTService(); print(stt)"
 python -c "from decision_engine import DecisionEngine; engine = DecisionEngine(); print(engine)"
 ```
 
+## Android Client App
+
+An Android application is included to connect to the AI service from mobile devices. This allows you to:
+- Test the service remotely
+- Simulate calls from your Android device
+- Monitor service health
+
+### Building the Android App
+
+See [android-app/README.md](android-app/README.md) for detailed instructions on:
+- Building the APK
+- Installing on your device
+- Configuring network settings
+- Using the app to connect to your AI service
+
+Quick start:
+```bash
+cd android-app
+./gradlew assembleDebug
+# APK will be at: app/build/outputs/apk/debug/app-debug.apk
+```
+
+For more details, see [android-app/BUILD_GUIDE.md](android-app/BUILD_GUIDE.md)
+
 ## License
 
 MIT License - see LICENSE file for details.
@@ -161,6 +186,7 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 ## Roadmap
 
+- [x] Android client app for remote connection
 - [ ] Full Asterisk ARI integration
 - [ ] WebRTC browser-based calling
 - [ ] Advanced TTS with multiple voices
