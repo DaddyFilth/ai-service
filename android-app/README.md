@@ -1,6 +1,6 @@
 # AI Service Android Client
 
-This Android application connects to the AI Call Service running on your computer and allows you to simulate calls and test the service.
+This Android application connects to the AI Call Service and handles incoming phone calls by forwarding them to the AI server for intelligent processing.
 
 ## Quick Links
 
@@ -11,15 +11,26 @@ This Android application connects to the AI Call Service running on your compute
 
 ## Features
 
-- Connect to AI Service API running on a computer
-- Test connection health check
-- Simulate incoming calls
-- View AI service responses
+- **Call Monitoring**: Automatically detects incoming phone calls on your Android device
+- **AI Processing**: Forwards call information to the AI Service for intelligent decision making
+- **Real-time Notifications**: Displays AI decisions (forward, voicemail, ask question) via notifications
+- **Call History**: Keeps track of all processed calls with AI decisions
+- **Manual Testing**: Simulate calls to test the AI service
+- **Connection Management**: Test and monitor connection to the AI server
+
+## How It Works
+
+1. **Incoming Call**: When a phone call comes to your Android device, the app detects it
+2. **Forward to AI**: Call information (caller number, timestamp) is sent to the AI service
+3. **AI Decision**: The server analyzes the call using AI and makes a routing decision
+4. **Notification**: You receive a notification showing what the AI decided
+5. **History**: All calls are logged so you can review AI decisions later
 
 ## Requirements
 
-- Android device or emulator running Android 7.0 (API 24) or higher
+- Android device running Android 7.0 (API 24) or higher
 - AI Service running on a computer on the same network
+- Phone call permissions granted to the app
 
 ## Building the APK
 
@@ -90,27 +101,50 @@ For a release build, you'll need to create a keystore:
 
 ## Usage
 
-1. Start the AI Service on your computer:
+### Setup
+
+1. **Start the AI Service** on your computer:
    ```bash
    python api.py
    ```
 
-2. Find your computer's IP address on the local network:
+2. **Find your computer's IP address** on the local network:
    - Windows: `ipconfig`
    - Mac/Linux: `ifconfig` or `ip addr`
 
-3. Open the AI Service Client app on your Android device
+3. **Open the AI Service Client app** on your Android device
 
-4. Enter the server URL (e.g., `http://192.168.1.100:8000`)
+4. **Enter the server URL** (e.g., `http://192.168.1.100:8000`)
 
-5. Click "Test Connection" to verify connectivity
+5. **Test Connection**: Click "Test Connection" to verify connectivity
 
-6. Fill in the call details:
+### Enable Call Monitoring
+
+1. **Test the connection first** to ensure the server is reachable
+2. **Click "Enable Call Monitoring"**
+3. **Grant permissions** when prompted:
+   - Read Phone State (required to detect calls)
+   - Read Call Log (required to get call details)
+   - Answer Phone Calls (required to process calls)
+4. **Monitoring is now active** - incoming calls will be forwarded to the AI service
+
+### View Call History
+
+- Click "View Call History" to see all processed calls
+- Each entry shows:
+  - Time of call
+  - Caller phone number
+  - AI decision (forward/voicemail/ask_question)
+  - AI message
+
+### Manual Testing
+
+You can still manually simulate calls for testing:
+1. Fill in the call details:
    - Call ID (e.g., `test_001`)
    - Caller Number (e.g., `+1234567890`)
    - Called Number (e.g., `+0987654321`)
-
-7. Click "Simulate Call" to send a call request to the service
+2. Click "Simulate Call" to send a test request to the service
 
 ## Network Configuration
 
@@ -150,6 +184,29 @@ SERVICE_PORT=8000
 
 4. Check firewall settings on the computer
 
+### Call Monitoring Not Working
+
+1. **Check Permissions**: Ensure all required permissions are granted
+   - Go to Android Settings > Apps > AI Service Client > Permissions
+   - Enable Phone and Call Log permissions
+
+2. **Check Monitoring Status**: Ensure monitoring is enabled in the app
+   - Look for "Status: ACTIVE" in the Call Monitoring section
+
+3. **Check Server Connection**: Test the connection before enabling monitoring
+
+4. **Check Logs**: Use `adb logcat` to see detailed logs:
+   ```bash
+   adb logcat | grep -i "CallReceiver\|CallMonitorService"
+   ```
+
+### Calls Not Being Forwarded
+
+1. **Verify monitoring is enabled** in the app
+2. **Check server URL** is correct and saved
+3. **Check network connection** between device and server
+4. **Review call history** to see if calls were detected but failed to process
+
 ### Connection Timeout
 
 - Increase timeout values if on a slow network
@@ -157,9 +214,28 @@ SERVICE_PORT=8000
 
 ## API Endpoints Used
 
-- `GET /` - Root endpoint
-- `GET /health` - Health check
-- `POST /call/incoming` - Simulate incoming call
+- `GET /` - Root endpoint (service info)
+- `GET /health` - Health check (verify connection)
+- `POST /call/incoming` - Process incoming call and get AI decision
+  - Sent automatically when monitoring is enabled
+  - Can also be triggered manually for testing
+
+## Permissions Required
+
+The app requires the following permissions:
+
+### Network Permissions (Auto-granted)
+- `INTERNET` - Connect to the AI service
+- `ACCESS_NETWORK_STATE` - Check network connectivity
+- `FOREGROUND_SERVICE` - Run call monitoring in background
+- `FOREGROUND_SERVICE_PHONE_CALL` - Handle phone calls
+
+### Runtime Permissions (User must grant)
+- `READ_PHONE_STATE` - Detect incoming calls
+- `READ_CALL_LOG` - Access call information
+- `ANSWER_PHONE_CALLS` - Process incoming calls (Android 8.0+)
+
+**Note**: These permissions are only used when call monitoring is enabled. The app will request them when you click "Enable Call Monitoring".
 
 ## Development
 

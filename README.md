@@ -34,7 +34,7 @@ Caller (SIP/WebRTC)
   - **Forward**: Route calls to specific extensions/numbers
   - **Voicemail**: Record messages
   - **Ask Question**: Interactive TTS-based conversation
-- **Android Client App**: Connect to the AI service from your Android device
+- **Android Client App**: Receives calls on your Android device and connects them to the AI service for processing
 
 ## Requirements
 
@@ -181,18 +181,48 @@ python -c "from decision_engine import DecisionEngine; engine = DecisionEngine()
 
 ## Android Client App
 
-An Android application is included to connect to the AI service from mobile devices. This allows you to:
-- Test the service remotely
-- Simulate calls from your Android device
-- Monitor service health
+An Android application is included that can receive incoming phone calls on your device and forward them to the AI service for intelligent processing.
 
-### Building the Android App
+**Key Features**:
+- Automatically detects incoming calls on your Android device
+- Forwards call information to the AI service
+- Displays AI decisions via notifications (forward, voicemail, or ask question)
+- Maintains call history with AI decisions
+- Supports manual call simulation for testing
 
-See [android-app/README.md](android-app/README.md) for detailed instructions on:
-- Building the APK
-- Installing on your device
-- Configuring network settings
-- Using the app to connect to your AI service
+### Using the Android App
+
+1. **Build and install** the app on your Android device:
+   ```bash
+   cd android-app
+   ./gradlew assembleDebug
+   adb install app/build/outputs/apk/debug/app-debug.apk
+   ```
+
+2. **Configure the app**:
+   - Open the app on your device
+   - Enter your AI service URL (e.g., `http://192.168.1.100:8000`)
+   - Test the connection
+
+3. **Enable call monitoring**:
+   - Click "Enable Call Monitoring"
+   - Grant required permissions (Phone State, Call Log)
+   - Incoming calls will now be forwarded to the AI service
+
+4. **Receive calls**:
+   - When a call comes in, the app detects it
+   - Call info is sent to the AI service
+   - You receive a notification with the AI's decision
+   - View call history to review all AI decisions
+
+### Documentation
+
+See the [android-app](android-app/) directory for complete documentation:
+- **[README.md](android-app/README.md)** - Overview and setup
+- **[QUICKSTART.md](android-app/QUICKSTART.md)** - Quick start guide
+- **[BUILD_GUIDE.md](android-app/BUILD_GUIDE.md)** - Detailed build instructions
+- **[ARCHITECTURE.md](android-app/ARCHITECTURE.md)** - Technical architecture
+- **[TROUBLESHOOTING.md](android-app/TROUBLESHOOTING.md)** - Common issues
 
 Quick start:
 ```bash
