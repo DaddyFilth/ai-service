@@ -177,12 +177,6 @@ source venv/bin/activate
 python api.py
 ```
 
-Or using uvicorn directly:
-```bash
-source venv/bin/activate
-uvicorn api:app --host 0.0.0.0 --port 8000 --reload
-```
-
 ### Option C: Production Mode with systemd
 Create `/etc/systemd/system/ai-call-service.service`:
 
