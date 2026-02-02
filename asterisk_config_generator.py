@@ -55,17 +55,25 @@ class AsteriskConfigGenerator:
         
     def generate_ari_conf(self):
         """Generate ari.conf for Asterisk REST Interface."""
+        password = settings.asterisk_password or 'CHANGE_THIS_PASSWORD'
+        password_warning = ""
+        
+        if not settings.asterisk_password:
+            password_warning = "; WARNING: Default password detected! Change this before production use!\n; Set ASTERISK_PASSWORD in your .env file\n"
+        
         content = f"""[general]
 enabled = yes
 pretty = yes
 
-[{settings.asterisk_username}]
+{password_warning}[{settings.asterisk_username}]
 type = user
 read_only = no
-password = {settings.asterisk_password or 'CHANGE_THIS_PASSWORD'}
+password = {password}
 """
         self._write_file("ari.conf", content)
         print("✓ Generated ari.conf")
+        if not settings.asterisk_password:
+            print("  ⚠️  WARNING: Using default password - change before production use!")
         
     def generate_http_conf(self):
         """Generate http.conf for HTTP/WebSocket support."""
@@ -84,6 +92,7 @@ bindport = 8088
         content = f""";
 ; AI Call Service Integration
 ; Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+; AI Service URL: {service_url}
 ;
 
 [ai-service]
@@ -128,11 +137,17 @@ exten => _X.,1,NoOp(Default context - routing to AI)
         
     def generate_pjsip_conf(self):
         """Generate pjsip.conf for SIP trunk configuration."""
+        password = settings.asterisk_password or 'CHANGE_THIS_PASSWORD'
+        password_warning = ""
+        
+        if not settings.asterisk_password:
+            password_warning = "; WARNING: Default password detected! Change this before production use!\n; Set ASTERISK_PASSWORD in your .env file\n\n"
+        
         content = f""";
 ; PJSIP Configuration for AI Call Service
 ; Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 ;
-
+{password_warning}
 [transport-udp]
 type = transport
 protocol = udp
@@ -163,7 +178,7 @@ max_contacts = 1
 type = auth
 auth_type = userpass
 username = {settings.asterisk_username}
-password = {settings.asterisk_password or 'CHANGE_THIS_PASSWORD'}
+password = {password}
 
 ; Example SIP trunk configuration (customize for your provider)
 ; [trunk-example]
@@ -187,6 +202,8 @@ password = {settings.asterisk_password or 'CHANGE_THIS_PASSWORD'}
 """
         self._write_file("pjsip.conf", content)
         print("✓ Generated pjsip.conf")
+        if not settings.asterisk_password:
+            print("  ⚠️  WARNING: Using default password - change before production use!")
         
     def generate_install_script(self):
         """Generate installation script for the configuration files."""
@@ -274,7 +291,7 @@ install_config "pjsip.conf"
 echo ""
 echo "Setting file permissions..."
 chown -R asterisk:asterisk "$ASTERISK_DIR"
-chmod 640 "$ASTERISK_DIR"/*.conf
+chmod 640 "$ASTERISK_DIR"/*.conf 2>/dev/null || true
 
 # Verify configuration
 echo ""

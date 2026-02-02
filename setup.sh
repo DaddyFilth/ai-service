@@ -75,11 +75,16 @@ read -r generate_asterisk
 
 if [ "$generate_asterisk" = "y" ] || [ "$generate_asterisk" = "Y" ]; then
     echo ""
-    echo "Generating Asterisk configuration files..."
-    python asterisk_config_generator.py -o ./asterisk-configs
-    echo ""
-    echo "Asterisk configurations generated in ./asterisk-configs/"
-    echo "See ./asterisk-configs/README.md for installation instructions"
+    if [ -f "asterisk_config_generator.py" ]; then
+        echo "Generating Asterisk configuration files..."
+        python asterisk_config_generator.py -o ./asterisk-configs
+        echo ""
+        echo "Asterisk configurations generated in ./asterisk-configs/"
+        echo "See ./asterisk-configs/README.md for installation instructions"
+    else
+        echo "Error: asterisk_config_generator.py not found"
+        echo "Please ensure all repository files are present"
+    fi
 fi
 
 echo ""
