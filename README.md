@@ -133,12 +133,39 @@ Routes calls based on AI decisions to:
 
 ## Integration with Asterisk
 
-For production deployment, configure Asterisk to send call events to this service:
+### Automatic Configuration (Recommended)
+
+Generate Asterisk configuration files automatically:
+
+```bash
+# Generate configuration files
+python asterisk_config_generator.py
+
+# Or specify custom output directory
+python asterisk_config_generator.py -o /path/to/output
+
+# Install the generated configurations
+cd asterisk-configs
+sudo bash install_configs.sh
+```
+
+The auto-config generator creates:
+- `ari.conf` - REST API configuration
+- `http.conf` - HTTP server settings
+- `extensions.conf` - Call routing dialplan
+- `pjsip.conf` - SIP endpoint configuration
+- Installation script with automatic backup
+
+### Manual Configuration
+
+For production deployment, manually configure Asterisk:
 
 1. Install Asterisk with ARI (Asterisk REST Interface)
 2. Configure ARI in `/etc/asterisk/ari.conf`
 3. Set up dialplan to route calls through this service
 4. Configure webhooks or use ARI WebSocket for real-time events
+
+See [INSTALLATION.md](INSTALLATION.md) for detailed manual configuration instructions.
 
 ## Development
 

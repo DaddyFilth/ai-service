@@ -128,6 +128,29 @@ sudo make config
 ```
 
 ### Configure Asterisk for the AI Service
+
+#### Option A: Automatic Configuration (Recommended)
+
+Use the built-in configuration generator:
+
+```bash
+# Generate Asterisk configuration files
+python asterisk_config_generator.py
+
+# Install the generated configurations
+cd asterisk-configs
+sudo bash install_configs.sh
+
+# Restart Asterisk
+sudo systemctl restart asterisk
+```
+
+The generator creates all necessary configuration files with sensible defaults based on your `.env` settings.
+
+#### Option B: Manual Configuration
+
+Manually edit configuration files:
+
 ```bash
 # Edit /etc/asterisk/ari.conf
 [general]
@@ -147,6 +170,8 @@ bindport = 8088
 # Restart Asterisk
 sudo systemctl restart asterisk
 ```
+
+See the generated `asterisk-configs/README.md` for complete configuration examples.
 
 ## Step 6: Verify Installation
 

@@ -102,6 +102,7 @@ ollama serve
 - Read [INSTALLATION.md](INSTALLATION.md) for production setup
 - Read [ARCHITECTURE.md](ARCHITECTURE.md) to understand the system
 - Customize AI prompts in `decision_engine.py`
+- **Generate Asterisk configs**: `python asterisk_config_generator.py`
 - Integrate with real Asterisk PBX
 
 ## Support

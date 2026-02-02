@@ -68,11 +68,33 @@ fi
 echo ""
 echo "=== Setup Complete ==="
 echo ""
+
+# Ask if user wants to generate Asterisk configs
+echo "Do you want to generate Asterisk configuration files? (y/n)"
+read -r generate_asterisk
+
+if [ "$generate_asterisk" = "y" ] || [ "$generate_asterisk" = "Y" ]; then
+    echo ""
+    echo "Generating Asterisk configuration files..."
+    python asterisk_config_generator.py -o ./asterisk-configs
+    echo ""
+    echo "Asterisk configurations generated in ./asterisk-configs/"
+    echo "See ./asterisk-configs/README.md for installation instructions"
+fi
+
+echo ""
 echo "Next steps:"
 echo "1. Edit .env with your configuration"
 echo "2. Ensure Ollama is running: ollama serve"
-echo "3. Run the service: python main.py"
-echo "   or as API: python api.py"
+if [ "$generate_asterisk" = "y" ] || [ "$generate_asterisk" = "Y" ]; then
+    echo "3. Install Asterisk configs: cd asterisk-configs && sudo bash install_configs.sh"
+    echo "4. Run the service: python main.py"
+    echo "   or as API: python api.py"
+else
+    echo "3. (Optional) Generate Asterisk configs: python asterisk_config_generator.py"
+    echo "4. Run the service: python main.py"
+    echo "   or as API: python api.py"
+fi
 echo ""
 echo "To activate the virtual environment later, run:"
 echo "  source venv/bin/activate"
