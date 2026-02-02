@@ -175,9 +175,97 @@ ollama pull codellama  # For technical support
 
 ## Integrating with Asterisk
 
-### Asterisk Dialplan Configuration
+### Automatic Configuration (Recommended)
 
-Add to `/etc/asterisk/extensions.conf`:
+The AI service includes an automatic configuration generator for Asterisk:
+
+#### Generate Configuration Files
+
+```bash
+# Generate default configuration
+python asterisk_config_generator.py
+
+# Or specify custom output directory
+python asterisk_config_generator.py -o ./my-asterisk-configs
+
+# Force overwrite existing directory
+python asterisk_config_generator.py --force
+```
+
+#### What Gets Generated
+
+The auto-config tool creates:
+
+1. **ari.conf** - Asterisk REST Interface configuration
+   - Enables ARI for programmatic call control
+   - Creates user credentials from your `.env` settings
+   - Configured for the AI service
+
+2. **http.conf** - HTTP server configuration
+   - Enables HTTP/WebSocket server on port 8088
+   - Required for ARI to function
+
+3. **extensions.conf** - Complete dialplan
+   - Routes calls through AI service using Stasis
+   - Includes contexts for incoming calls
+   - Emergency bypass for 911 calls
+   - Example extensions (100, 200)
+
+4. **pjsip.conf** - SIP endpoint configuration
+   - Transport configuration (UDP/TCP)
+   - AI service endpoint definition
+   - Template for SIP trunk setup
+   - Codec configuration (ulaw, alaw, g722, opus)
+
+5. **install_configs.sh** - Automated installer
+   - Checks system requirements
+   - Creates timestamped backups
+   - Safely installs configurations
+   - Validates Asterisk setup
+
+6. **README.md** - Comprehensive documentation
+   - Installation instructions
+   - Configuration details
+   - Testing procedures
+   - Troubleshooting guide
+
+#### Install Generated Configurations
+
+```bash
+# Review the generated files
+cd asterisk-configs
+ls -la
+
+# Install (requires root/sudo)
+sudo bash install_configs.sh
+```
+
+The install script will:
+- ✓ Check if Asterisk is installed
+- ✓ Create timestamped backups of existing configs
+- ✓ Install new configuration files
+- ✓ Set proper permissions
+- ✓ Validate configuration syntax
+
+#### Customize Generated Configs
+
+After generation, you can edit the files before installation:
+
+```bash
+# Edit to add your SIP trunk details
+nano asterisk-configs/pjsip.conf
+
+# Customize dialplan routing
+nano asterisk-configs/extensions.conf
+
+# Then install
+cd asterisk-configs
+sudo bash install_configs.sh
+```
+
+### Manual Asterisk Dialplan Configuration
+
+If you prefer manual configuration, add to `/etc/asterisk/extensions.conf`:
 
 ```ini
 [default]
@@ -187,7 +275,7 @@ exten => _X.,1,NoOp(AI Call Screening)
   same => n,Set(CALLER_NUM=${CALLERID(num)})
   same => n,Set(CALLED_NUM=${EXTEN})
   same => n,Answer()
-  same => n,AGI(agi://localhost:8000/agi,${CALL_ID},${CALLER_NUM},${CALLED_NUM})
+  same => n,Stasis(ai-service,${CALL_ID},${CALLER_NUM},${CALLED_NUM})
   same => n,Hangup()
 ```
 
@@ -204,6 +292,32 @@ async def connect_ari(self):
             event = json.loads(message)
             if event['type'] == 'StasisStart':
                 await self.handle_incoming_call(event)
+```
+
+### Testing Asterisk Integration
+
+After installing configurations:
+
+```bash
+# 1. Restart Asterisk
+sudo systemctl restart asterisk
+
+# 2. Verify ARI is enabled
+curl http://localhost:8088/ari/api-docs/resources.json
+
+# 3. Connect to Asterisk CLI
+sudo asterisk -rvvv
+
+# 4. Check dialplan
+asterisk> dialplan show ai-service
+
+# 5. Start the AI service
+cd /path/to/ai-service
+source venv/bin/activate
+python api.py
+
+# 6. Make a test call to your Asterisk server
+# Watch logs in both Asterisk CLI and AI service terminal
 ```
 
 ## Working with Recordings
