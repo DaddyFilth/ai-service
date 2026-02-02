@@ -83,15 +83,76 @@
             app:layout_constraintTop_toBottomOf="@id/connectionStatusLabel" />
 
         <TextView
-            android:id="@+id/callSimulatorTitle"
+            android:id="@+id/callMonitoringTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Simulate Call"
+            android:text="Call Monitoring"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider" />
+
+        <TextView
+            android:id="@+id/monitoringStatusLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Monitoring Status:"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/callMonitoringTitle" />
+
+        <TextView
+            android:id="@+id/monitoringStatusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="INACTIVE"
+            android:textColor="@color/red"
+            app:layout_constraintBaseline_toBaselineOf="@id/monitoringStatusLabel"
+            app:layout_constraintStart_toEndOf="@id/monitoringStatusLabel" />
+
+        <Button
+            android:id="@+id/toggleMonitoringButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Enable Call Monitoring"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/monitoringStatusLabel" />
+
+        <Button
+            android:id="@+id/viewHistoryButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="View Call History"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toggleMonitoringButton" />
+
+        <View
+            android:id="@+id/divider2"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="24dp"
+            android:background="@color/gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/viewHistoryButton" />
+
+        <TextView
+            android:id="@+id/callSimulatorTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Simulate Call (Testing)"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider2" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/callIdLayout"
