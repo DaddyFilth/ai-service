@@ -1,9 +1,16 @@
 package com.aiservice.client
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.aiservice.client.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
@@ -17,6 +24,23 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var isConnected = false
+    private var monitoringEnabled = false
+
+    companion object {
+        private const val PERMISSIONS_REQUEST_CODE = 123
+        private val REQUIRED_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            arrayOf(
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.READ_CALL_LOG,
+                Manifest.permission.ANSWER_PHONE_CALLS
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.READ_CALL_LOG
+            )
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +48,26 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupListeners()
+        loadPreferences()
+        updateMonitoringUI()
+    }
+
+    private fun loadPreferences() {
+        val prefs = getSharedPreferences("ai_service_prefs", Context.MODE_PRIVATE)
+        val savedUrl = prefs.getString("server_url", "")
+        if (!savedUrl.isNullOrEmpty()) {
+            binding.serverUrlInput.setText(savedUrl)
+        }
+        monitoringEnabled = prefs.getBoolean("monitoring_enabled", false)
+    }
+
+    private fun savePreferences() {
+        val prefs = getSharedPreferences("ai_service_prefs", Context.MODE_PRIVATE)
+        prefs.edit().apply {
+            putString("server_url", binding.serverUrlInput.text.toString().trim())
+            putBoolean("monitoring_enabled", monitoringEnabled)
+            apply()
+        }
     }
 
     private fun setupListeners() {
@@ -34,6 +78,114 @@ class MainActivity : AppCompatActivity() {
         binding.simulateCallButton.setOnClickListener {
             simulateCall()
         }
+        
+        binding.toggleMonitoringButton.setOnClickListener {
+            toggleCallMonitoring()
+        }
+        
+        binding.viewHistoryButton.setOnClickListener {
+            viewCallHistory()
+        }
+    }
+
+    private fun toggleCallMonitoring() {
+        if (monitoringEnabled) {
+            // Disable monitoring
+            monitoringEnabled = false
+            savePreferences()
+            updateMonitoringUI()
+            showSuccess("Call monitoring disabled")
+        } else {
+            // Enable monitoring - check permissions first
+            if (hasRequiredPermissions()) {
+                enableMonitoring()
+            } else {
+                requestRequiredPermissions()
+            }
+        }
+    }
+
+    private fun hasRequiredPermissions(): Boolean {
+        return REQUIRED_PERMISSIONS.all { permission ->
+            ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    private fun requestRequiredPermissions() {
+        ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, PERMISSIONS_REQUEST_CODE)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        
+        if (requestCode == PERMISSIONS_REQUEST_CODE) {
+            if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                enableMonitoring()
+            } else {
+                showError("Permissions required to monitor calls")
+            }
+        }
+    }
+
+    private fun enableMonitoring() {
+        val serverUrl = binding.serverUrlInput.text.toString().trim()
+        
+        if (serverUrl.isEmpty()) {
+            showError("Please enter and test server URL first")
+            return
+        }
+        
+        if (!isConnected) {
+            showError("Please test connection to server first")
+            return
+        }
+        
+        monitoringEnabled = true
+        savePreferences()
+        updateMonitoringUI()
+        showSuccess("Call monitoring enabled - incoming calls will be forwarded to AI service")
+    }
+
+    private fun updateMonitoringUI() {
+        if (monitoringEnabled) {
+            binding.toggleMonitoringButton.text = "Disable Call Monitoring"
+            binding.monitoringStatusText.text = "Status: ACTIVE"
+            binding.monitoringStatusText.setTextColor(getColor(R.color.green))
+        } else {
+            binding.toggleMonitoringButton.text = "Enable Call Monitoring"
+            binding.monitoringStatusText.text = "Status: INACTIVE"
+            binding.monitoringStatusText.setTextColor(getColor(R.color.red))
+        }
+    }
+
+    private fun viewCallHistory() {
+        val prefs = getSharedPreferences("ai_service_prefs", Context.MODE_PRIVATE)
+        val history = prefs.getStringSet("call_history", setOf())?.sortedDescending() ?: emptyList()
+        
+        if (history.isEmpty()) {
+            binding.responseText.text = "No call history yet"
+            return
+        }
+        
+        val historyText = StringBuilder("Call History:\n\n")
+        history.take(20).forEach { entry ->
+            val parts = entry.split("|")
+            if (parts.size == 4) {
+                val (timestamp, number, action, message) = parts
+                historyText.append("Time: $timestamp\n")
+                historyText.append("From: $number\n")
+                historyText.append("AI Action: $action\n")
+                historyText.append("Message: $message\n")
+                historyText.append("─".repeat(40))
+                historyText.append("\n\n")
+            }
+        }
+        
+        binding.responseText.text = historyText.toString()
     }
 
     private fun testConnection() {

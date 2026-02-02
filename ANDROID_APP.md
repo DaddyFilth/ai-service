@@ -1,6 +1,6 @@
-# Android App - Connect Your Phone to AI Service
+# Android App - Receive Calls and Connect to AI Service
 
-An Android application is available to connect your Android device to the AI Call Service running on your computer.
+The Android application receives incoming phone calls on your Android device and forwards them to the AI Call Service for intelligent processing and routing decisions.
 
 ## Quick Start
 
@@ -21,11 +21,18 @@ An Android application is available to connect your Android device to the AI Cal
    adb install app/build/outputs/apk/debug/app-debug.apk
    ```
 
-4. **Connect:**
+4. **Setup the app:**
    - Open the app on your Android device
    - Enter your computer's IP: `http://192.168.1.100:8000`
    - Test the connection
-   - Simulate calls
+   - Enable call monitoring
+   - Grant required permissions
+
+5. **Receive calls:**
+   - Incoming phone calls will be automatically detected
+   - Call information is forwarded to the AI service
+   - You'll see a notification with the AI's decision
+   - View call history to review AI decisions
 
 ## Documentation
 
@@ -40,10 +47,13 @@ Full documentation is available in the `android-app/` directory:
 
 ## Features
 
+- ✅ Detect incoming phone calls on Android device
+- ✅ Forward call information to AI service
+- ✅ Receive AI-driven routing decisions
+- ✅ Display decisions via notifications
+- ✅ Maintain call history with AI decisions
 - ✅ Test connection to AI service
-- ✅ Simulate incoming calls
-- ✅ View AI service responses
-- ✅ Connection health monitoring
+- ✅ Manual call simulation for testing
 - ✅ Material Design UI
 
 ## Requirements
@@ -52,6 +62,7 @@ Full documentation is available in the `android-app/` directory:
 - Computer and Android device on same WiFi network
 - AI Service running on computer
 - Java 11+ for building
+- Phone call permissions granted on device
 
 ## Support
 

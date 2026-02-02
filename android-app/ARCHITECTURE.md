@@ -1,5 +1,9 @@
 # Android App Architecture
 
+## System Overview
+
+The Android app serves as a **call receiver and monitoring client** for the AI Call Service. It detects incoming phone calls on the Android device, forwards call information to the AI server for processing, and displays AI-driven decisions to the user.
+
 ## Connection Flow
 
 ```
@@ -13,23 +17,47 @@
 │  │  │ AI Service     │  │         │  │ Python         │  │  │
 │  │  │ Client App     │  │  HTTP   │  │ API Server     │  │  │
 │  │  │                │──┼────────→│  │ (api.py)       │  │  │
-│  │  │ - Test Health  │  │  :8000  │  │                │  │  │
-│  │  │ - Simulate     │  │  JSON   │  │ - /health      │  │  │
-│  │  │   Calls        │  │←────────┼──│ - /call/       │  │  │
-│  │  │ - View Results │  │         │  │   incoming     │  │  │
-│  │  └────────────────┘  │         │  └────────────────┘  │  │
-│  │                      │         │          ↓           │  │
-│  │  IP: Dynamic         │         │  ┌────────────────┐  │  │
-│  │  Port: N/A           │         │  │ Ollama Service │  │  │
-│  └──────────────────────┘         │  │ (AI Engine)    │  │  │
-│                                    │  │                │  │  │
-│                                    │  │ :11434         │  │  │
-│                                    │  └────────────────┘  │  │
-│                                    │                      │  │
-│                                    │  IP: 192.168.1.100   │  │
-│                                    │  Port: 8000          │  │
-│                                    └──────────────────────┘  │
+│  │  │ - Monitor      │  │  :8000  │  │                │  │  │
+│  │  │   Calls        │  │  JSON   │  │ - /health      │  │  │
+│  │  │ - Forward to   │  │←────────┼──│ - /call/       │  │  │
+│  │  │   AI Server    │  │         │  │   incoming     │  │  │
+│  │  │ - Display AI   │  │         │  └────────────────┘  │  │
+│  │  │   Decisions    │  │         │          ↓           │  │
+│  │  └────────────────┘  │         │  ┌────────────────┐  │  │
+│  │         ↑            │         │  │ Ollama Service │  │  │
+│  │  Phone Calls         │         │  │ (AI Engine)    │  │  │
+│  │  (Incoming)          │         │  │                │  │  │
+│  │                      │         │  │ :11434         │  │  │
+│  │                      │         │  └────────────────┘  │  │
+│  │                      │         │                      │  │
+│  │  IP: Dynamic         │         │  IP: 192.168.1.100   │  │
+│  │  Port: Phone Line    │         │  Port: 8000          │  │
+│  └──────────────────────┘         └──────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
+```
+
+## Call Processing Flow
+
+```
+Incoming Call to Android Device
+    ↓
+CallReceiver (BroadcastReceiver)
+    ↓
+Check if monitoring enabled
+    ↓
+Start CallMonitorService (Foreground Service)
+    ↓
+Extract call information (phone number, timestamp)
+    ↓
+Send POST /call/incoming to AI Server
+    ↓
+AI Server processes call and returns decision
+    ↓
+Display notification with AI decision
+    ↓
+Save to call history
+    ↓
+User sees AI decision (forward/voicemail/ask_question)
 ```
 
 ## Component Architecture
@@ -41,17 +69,41 @@ MainActivity
     ├── UI Layer (activity_main.xml)
     │   ├── Server URL Input
     │   ├── Connection Test Button
-    │   ├── Call Simulation Form
+    │   ├── Call Monitoring Controls
+    │   │   ├── Enable/Disable Monitoring Toggle
+    │   │   ├── Monitoring Status Display
+    │   │   └── View Call History Button
+    │   ├── Call Simulation Form (for testing)
     │   └── Response Display
+    │
+    ├── Background Services
+    │   ├── CallReceiver (BroadcastReceiver)
+    │   │   ├── Listens for PHONE_STATE_CHANGED
+    │   │   ├── Detects incoming calls
+    │   │   └── Triggers CallMonitorService
+    │   │
+    │   └── CallMonitorService (ForegroundService)
+    │       ├── Runs in background
+    │       ├── Forwards call to AI server
+    │       ├── Receives AI decision
+    │       ├── Shows notification
+    │       └── Saves to call history
     │
     ├── Network Layer
     │   ├── ApiClient (Retrofit + OkHttp)
     │   ├── AIServiceApi (REST API Interface)
     │   └── Models (Data classes)
     │
+    ├── Storage Layer
+    │   └── SharedPreferences
+    │       ├── Server URL
+    │       ├── Monitoring enabled status
+    │       └── Call history (last 50 calls)
+    │
     └── Business Logic
+        ├── Permission Management
+        ├── Call Detection & Processing
         ├── Connection Management
-        ├── Request/Response Handling
         └── Error Handling
 ```
 
@@ -122,9 +174,27 @@ User Display ← UI ← ViewModel ← Response ← Network ← Server
 
 ### Permissions (AndroidManifest.xml)
 ```xml
+<!-- Network permissions (auto-granted) -->
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+<!-- Phone call permissions (require user approval) -->
+<uses-permission android:name="android.permission.READ_PHONE_STATE" />
+<uses-permission android:name="android.permission.READ_CALL_LOG" />
+<uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+<uses-permission android:name="android.permission.CALL_PHONE" />
+
+<!-- Foreground service permissions -->
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
 ```
+
+**Permission Usage**:
+- **READ_PHONE_STATE**: Detect when a call is ringing, answered, or ended
+- **READ_CALL_LOG**: Access caller phone number information
+- **ANSWER_PHONE_CALLS**: Programmatically interact with incoming calls (Android 8.0+)
+- **FOREGROUND_SERVICE**: Run CallMonitorService in the background
+- **FOREGROUND_SERVICE_PHONE_CALL**: Specify service type for phone call handling
 
 ## Technology Stack
 
