@@ -56,10 +56,10 @@ cd ai-service
 pip install -r requirements.txt
 ```
 
-3. Copy and configure environment variables:
+3. Configure environment variables:
 ```bash
-cp .env.example .env
-# Edit .env with your configuration
+# setup.sh already created .env with a secure ASTERISK_PASSWORD
+# Edit .env with your configuration if needed
 ```
 
 4. Install and start Ollama:
