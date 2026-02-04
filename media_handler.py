@@ -44,8 +44,8 @@ def sanitize_filename(filename: str) -> str:
     
     # Ensure we have a valid filename after sanitization
     if not sanitized or sanitized == '_' * len(sanitized):
-        # Log the original filename for debugging but don't expose it to the caller
-        logger.warning(f"Invalid filename rejected during sanitization: {filename}")
+        # Log a generic message for security - detailed logging could expose attack patterns
+        logger.warning(f"Invalid filename rejected during sanitization (length: {len(filename)})")
         raise ValueError("Invalid filename provided")
     
     return sanitized

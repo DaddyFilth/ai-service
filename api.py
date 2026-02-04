@@ -18,6 +18,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Configuration constants
+MAX_CALL_HISTORY_LIMIT = 500  # Maximum number of call history records to return
+
 # Global instances
 service: Optional[AICallService] = None
 user_manager: Optional[UserManager] = None
@@ -354,9 +357,9 @@ async def get_user_call_history(request):
     try:
         limit = int(request.query.get('limit', '50'))
         # Ensure limit is positive and within bounds
-        if limit < 1 or limit > 500:
+        if limit < 1 or limit > MAX_CALL_HISTORY_LIMIT:
             return web.json_response(
-                {"detail": "Invalid limit parameter - must be between 1 and 500"},
+                {"detail": f"Invalid limit parameter - must be between 1 and {MAX_CALL_HISTORY_LIMIT}"},
                 status=400
             )
     except ValueError:
