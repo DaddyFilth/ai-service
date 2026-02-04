@@ -65,6 +65,11 @@ class TestConfigWithPassword:
     
     def test_config_rejects_weak_password(self, monkeypatch):
         """Test that config rejects weak passwords."""
+        # Clear any cached settings
+        import sys
+        if 'config' in sys.modules:
+            del sys.modules['config']
+        
         monkeypatch.setenv("ASTERISK_PASSWORD", "weak")
         with pytest.raises(ValueError, match="does not meet security requirements"):
             from config import Settings
@@ -72,6 +77,11 @@ class TestConfigWithPassword:
     
     def test_config_accepts_strong_password(self, monkeypatch):
         """Test that config accepts strong passwords."""
+        # Clear any cached settings
+        import sys
+        if 'config' in sys.modules:
+            del sys.modules['config']
+        
         monkeypatch.setenv("ASTERISK_PASSWORD", "aB3$xZ9@mK2#pL7&qW5!")
         from config import Settings
         settings = Settings()
@@ -79,6 +89,11 @@ class TestConfigWithPassword:
     
     def test_config_allows_empty_password(self, monkeypatch):
         """Test that config allows empty password (for development only)."""
+        # Clear any cached settings
+        import sys
+        if 'config' in sys.modules:
+            del sys.modules['config']
+        
         monkeypatch.setenv("ASTERISK_PASSWORD", "")
         from config import Settings
         settings = Settings()

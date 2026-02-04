@@ -4,7 +4,7 @@ import bcrypt
 import jwt
 import secrets
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Dict, Any
+from typing import Dict, Any, Optional, List
 from pathlib import Path
 import logging
 
@@ -314,7 +314,7 @@ class UserManager:
         self,
         user_id: int,
         limit: int = 50
-    ) -> list[Dict[str, Any]]:
+    ) -> List[Dict[str, Any]]:
         """Get call history for a user."""
         if not self.db:
             raise RuntimeError("Database not initialized")

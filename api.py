@@ -3,6 +3,7 @@ from aiohttp import web
 from pydantic import BaseModel, ValidationError
 from typing import Dict, Any, Optional
 import asyncio
+import functools
 from datetime import datetime, timezone
 import logging
 import json
@@ -137,6 +138,7 @@ async def get_current_user(request) -> Optional[Dict[str, Any]]:
 
 def require_auth(handler):
     """Decorator to require authentication."""
+    @functools.wraps(handler)
     async def wrapper(request):
         user = await get_current_user(request)
         if not user:
