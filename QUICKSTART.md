@@ -34,8 +34,8 @@ chmod +x setup.sh
 
 ### 3. Configure
 ```bash
-cp .env.example .env
-# Edit .env if needed (defaults work for local testing)
+# setup.sh already created .env
+# Defaults are generated automatically; edit .env if needed
 ```
 
 ## Running (1 command)
@@ -114,3 +114,13 @@ ollama serve
 ---
 
 **That's it! You now have an AI call screening service running locally.**
+
+### Setup Options
+
+```bash
+# Skip Asterisk config generation
+./setup.sh --skip-asterisk
+
+# Skip Ollama setup/pull
+./setup.sh --skip-ollama
+```
