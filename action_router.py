@@ -5,7 +5,7 @@ from pathlib import Path
 from datetime import datetime
 
 from config import settings
-from media_handler import ensure_free_space
+from media_handler import ensure_free_space, sanitize_filename
 
 logger = logging.getLogger(__name__)
 
@@ -116,8 +116,12 @@ class ActionRouter:
         """
         ensure_free_space(self.recordings_dir, self.min_free_space_mb)
         call_id = call_context.get("call_id", "unknown")
+        
+        # Sanitize call_id to prevent path traversal
+        safe_call_id = sanitize_filename(call_id)
+        
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"voicemail_{call_id}_{timestamp}.wav"
+        filename = f"voicemail_{safe_call_id}_{timestamp}.wav"
         filepath = self.recordings_dir / filename
 
         logger.info(f"Recording voicemail for call {call_id} to {filepath}")

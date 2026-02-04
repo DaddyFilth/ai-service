@@ -76,9 +76,43 @@ When deploying this service:
    - Monitor for unauthorized access attempts
    - Set up alerts for suspicious activity
 
+6. **Rate Limiting** (recommended for production)
+   - Implement rate limiting on authentication endpoints to prevent brute force attacks
+   - Consider using middleware like `aiohttp-ratelimit` or reverse proxy rate limiting
+   - Recommended limits:
+     - `/auth/login`: 5 requests per minute per IP
+     - `/auth/register`: 3 requests per hour per IP
+     - `/call/incoming`: 60 requests per minute per user
+
+7. **CORS Configuration** (if serving web clients)
+   - Configure CORS headers appropriately for your use case
+   - Never use wildcard (`*`) for origins, headers, or exposed headers in production
+   - Specify exact allowed origins and headers
+   - Use `aiohttp-cors` middleware for proper CORS support
+   - Example configuration:
+     ```python
+     import aiohttp_cors
+     
+     cors = aiohttp_cors.setup(app, defaults={
+         "https://yourdomain.com": aiohttp_cors.ResourceOptions(
+             allow_credentials=True,
+             expose_headers=["Content-Type", "Authorization"],
+             allow_headers=["Content-Type", "Authorization"],
+             allow_methods=["GET", "POST", "PUT", "DELETE"]
+         )
+     })
+     
+     # Apply CORS to routes
+     for route in list(app.router.routes()):
+         cors.add(route)
+     ```
+
 ## Known Security Considerations
 
 - **Development Mode**: Empty passwords allowed for development/testing only
 - **Generated Configs**: Must manually update with actual passwords before production
 - **Log Files**: Ensure log files don't contain sensitive information
 - **Asterisk Security**: Follow Asterisk security best practices for production deployments
+- **Input Validation**: All user inputs are validated and sanitized to prevent injection attacks
+- **Path Traversal Protection**: File paths are sanitized to prevent directory traversal attacks
+- **API Query Parameters**: Validated with proper error handling to prevent crashes

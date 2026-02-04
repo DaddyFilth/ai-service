@@ -259,5 +259,130 @@ class TestMediaHandler:
             ensure_free_space(media.recordings_dir, required_mb)
 
 
+class TestSecurityFeatures:
+    """Test security features added to the service."""
+
+    def test_sanitize_filename_valid(self):
+        """Test that valid filenames are accepted."""
+        from media_handler import sanitize_filename
+        
+        assert sanitize_filename("test123") == "test123"
+        assert sanitize_filename("call_id_456") == "call_id_456"
+        assert sanitize_filename("file.wav") == "file.wav"
+
+    def test_sanitize_filename_path_traversal(self):
+        """Test that path traversal attempts are blocked."""
+        from media_handler import sanitize_filename
+        
+        # Path traversal attempts should be sanitized
+        result = sanitize_filename("../etc/passwd")
+        assert ".." not in result
+        assert "/" not in result
+        # Leading dots are removed, so we get "_etc_passwd"
+        assert "etc_passwd" in result
+        assert not result.startswith(".")
+
+    def test_sanitize_filename_empty(self):
+        """Test that empty filenames are rejected."""
+        from media_handler import sanitize_filename
+        
+        with pytest.raises(ValueError, match="empty"):
+            sanitize_filename("")
+
+    def test_sanitize_filename_hidden_file(self):
+        """Test that hidden files (starting with .) have dots removed."""
+        from media_handler import sanitize_filename
+        
+        # Leading dots should be removed
+        result = sanitize_filename(".hidden")
+        assert not result.startswith(".")
+        assert result == "hidden"
+
+    def test_sanitize_path_valid(self):
+        """Test that valid paths within base directory are accepted."""
+        from media_handler import sanitize_path
+        from pathlib import Path
+        import tempfile
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base_dir = Path(tmpdir)
+            file_path = base_dir / "test.wav"
+            
+            # Create the file
+            file_path.touch()
+            
+            # Should succeed
+            result = sanitize_path(file_path, base_dir)
+            assert result.is_absolute()
+
+    def test_sanitize_path_traversal(self):
+        """Test that path traversal attempts are blocked."""
+        from media_handler import sanitize_path
+        from pathlib import Path
+        import tempfile
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base_dir = Path(tmpdir) / "recordings"
+            base_dir.mkdir()
+            
+            # Try to escape the base directory
+            escape_path = base_dir / ".." / ".." / "etc" / "passwd"
+            
+            with pytest.raises(ValueError, match="Invalid file path"):
+                sanitize_path(escape_path, base_dir)
+
+    @pytest.mark.asyncio
+    async def test_media_handler_call_id_sanitization(self):
+        """Test that MediaHandler sanitizes call IDs."""
+        import tempfile
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            handler = MediaHandler(recordings_dir=tmpdir)
+            
+            # Try to use path traversal in call_id
+            malicious_call_id = "../../../etc/passwd"
+            
+            # Should not raise an error, but should sanitize the path
+            audio_file = await handler.capture_audio_stream(
+                call_id=malicious_call_id,
+                duration=1
+            )
+            
+            # Verify the file is in the recordings directory
+            audio_path = Path(audio_file)
+            assert audio_path.parent == handler.recordings_dir.resolve()
+            assert ".." not in audio_file
+            assert "/etc/" not in audio_file
+
+    @pytest.mark.asyncio
+    async def test_media_handler_tts_call_id_sanitization(self):
+        """Test that stream_tts sanitizes call IDs."""
+        import tempfile
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            handler = MediaHandler(recordings_dir=tmpdir)
+            
+            # Try to use path traversal in call_id
+            malicious_call_id = "../../../tmp/malicious"
+            
+            # Should sanitize the call_id
+            await handler.stream_tts(call_id=malicious_call_id, text="Test message")
+            
+            # Verify files are created in the correct location
+            tmpdir_path = Path(tmpdir).resolve()
+            
+            # Check that files exist in tmpdir
+            wav_files = list(tmpdir_path.glob("*.wav"))
+            assert len(wav_files) > 0, "No wav files created"
+            
+            # Verify all files are in tmpdir and have sanitized names
+            for file in wav_files:
+                # Should be directly in tmpdir, not in subdirectories
+                assert file.parent == tmpdir_path, f"File {file} not in recordings directory"
+                # Should not contain path traversal patterns
+                assert ".." not in file.name, f"Filename contains '..': {file.name}"
+                assert "/" not in file.name, f"Filename contains '/': {file.name}"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
