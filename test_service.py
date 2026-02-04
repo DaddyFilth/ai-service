@@ -38,12 +38,14 @@ class TestPasswordValidation:
         is_valid, error_msg = validate_password_strength("password123456")
         assert not is_valid
         assert "weak pattern" in error_msg.lower()
+        assert "password" in error_msg.lower()
     
     def test_weak_pattern_change_this(self):
         """Test that CHANGE_THIS pattern is rejected."""
-        is_valid, error_msg = validate_password_strength("CHANGE_THIS_PASSWORD")
+        is_valid, error_msg = validate_password_strength("CHANGE_THIS_SECURE")
         assert not is_valid
         assert "weak pattern" in error_msg.lower()
+        assert "change_this" in error_msg.lower()
     
     def test_strong_password(self):
         """Test that strong password is accepted."""
@@ -76,7 +78,7 @@ class TestConfigWithPassword:
         assert settings.asterisk_password == "aB3$xZ9@mK2#pL7&qW5!"
     
     def test_config_allows_empty_password(self, monkeypatch):
-        """Test that config allows empty password (for development)."""
+        """Test that config allows empty password (for development only)."""
         monkeypatch.setenv("ASTERISK_PASSWORD", "")
         from config import Settings
         settings = Settings()

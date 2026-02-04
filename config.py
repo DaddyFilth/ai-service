@@ -28,7 +28,7 @@ def validate_password_strength(password: str) -> tuple[bool, str]:
     weak_patterns = [
         "password", "admin", "123456", "qwerty", "letmein", 
         "welcome", "monkey", "dragon", "master", "sunshine",
-        "CHANGE_THIS", "CHANGE_ME", "DEFAULT"
+        "change_this", "change_me", "default"
     ]
     
     password_lower = password.lower()

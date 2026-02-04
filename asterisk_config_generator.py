@@ -450,7 +450,7 @@ If you prefer to manually install:
 
 - Enables the REST API for programmatic call control
 - Username: {settings.asterisk_username}
-- Password: Managed via ASTERISK_PASSWORD in .env file (never hardcoded)
+- Password: Managed via ASTERISK_PASSWORD in .env file (never hardcoded in code; empty allowed for development only)
 - Port: 8088 (HTTP)
 
 ### Dialplan (extensions.conf)
