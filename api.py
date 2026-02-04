@@ -350,10 +350,19 @@ async def get_user_call_history(request):
     """Get call history for current user."""
     user = request['user']
 
-    # Get limit from query params
-    limit = int(request.query.get('limit', '50'))
-    if limit > 500:
-        limit = 500
+    # Get limit from query params with proper validation
+    try:
+        limit = int(request.query.get('limit', '50'))
+        # Ensure limit is positive and within bounds
+        if limit < 1:
+            limit = 50
+        if limit > 500:
+            limit = 500
+    except ValueError:
+        return web.json_response(
+            {"detail": "Invalid limit parameter - must be an integer"},
+            status=400
+        )
 
     history = await user_manager.get_user_call_history(user['id'], limit)
 
