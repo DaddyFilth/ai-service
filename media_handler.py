@@ -73,9 +73,12 @@ def sanitize_path(file_path: Path, base_dir: Path) -> Path:
     try:
         abs_file_path.relative_to(abs_base_dir)
     except ValueError:
-        raise ValueError(
-            f"Path traversal detected: {file_path} is outside {base_dir}"
+        # Log details for debugging but don't expose them to caller
+        logger.warning(
+            f"Path traversal attempt blocked: attempted path {file_path}, "
+            f"base directory {base_dir}"
         )
+        raise ValueError("Invalid file path: access denied")
     
     return abs_file_path
 
@@ -203,18 +206,19 @@ class MediaHandler:
             ValueError: If the audio file is outside the recordings directory
             FileNotFoundError: If the audio file does not exist
         """
-        logger.info(f"Playing audio {audio_file} to call {call_id}")
+        logger.info(f"Playing audio to call {call_id}")
         path = Path(audio_file)
         
         # Sanitize path to prevent directory traversal
         try:
             sanitized_path = sanitize_path(path, self.recordings_dir)
         except ValueError as e:
-            logger.error(f"Path validation failed for audio playback")
+            logger.error(f"Path validation failed for audio playback on call {call_id}")
             raise ValueError(f"Invalid audio file path: {e}")
         
         if not sanitized_path.exists():
-            raise FileNotFoundError(f"Audio file not found: {audio_file}")
+            logger.error(f"Audio file not found for call {call_id}")
+            raise FileNotFoundError("Audio file not found")
         await asyncio.sleep(0.05)
         logger.info(f"Audio playback completed for call {call_id}")
 

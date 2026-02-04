@@ -328,7 +328,7 @@ class TestSecurityFeatures:
             # Try to escape the base directory
             escape_path = base_dir / ".." / ".." / "etc" / "passwd"
             
-            with pytest.raises(ValueError, match="Path traversal detected"):
+            with pytest.raises(ValueError, match="Invalid file path"):
                 sanitize_path(escape_path, base_dir)
 
     @pytest.mark.asyncio

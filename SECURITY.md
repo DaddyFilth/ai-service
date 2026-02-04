@@ -86,8 +86,8 @@ When deploying this service:
 
 7. **CORS Configuration** (if serving web clients)
    - Configure CORS headers appropriately for your use case
-   - Never use wildcard (`*`) origins in production
-   - Specify exact allowed origins
+   - Never use wildcard (`*`) for origins, headers, or exposed headers in production
+   - Specify exact allowed origins and headers
    - Use `aiohttp-cors` middleware for proper CORS support
    - Example configuration:
      ```python
@@ -96,8 +96,9 @@ When deploying this service:
      cors = aiohttp_cors.setup(app, defaults={
          "https://yourdomain.com": aiohttp_cors.ResourceOptions(
              allow_credentials=True,
-             expose_headers="*",
-             allow_headers="*",
+             expose_headers=["Content-Type", "Authorization"],
+             allow_headers=["Content-Type", "Authorization"],
+             allow_methods=["GET", "POST", "PUT", "DELETE"]
          )
      })
      
