@@ -1,6 +1,6 @@
 """Quick verification script to check all components are properly structured."""
 import sys
-from pathlib import Path
+
 
 def check_component(name, module_name):
     """Check if a component can be imported."""
@@ -12,13 +12,14 @@ def check_component(name, module_name):
         print(f"✗ {name}: FAILED - {e}")
         return False
 
+
 def main():
     """Run verification checks."""
     print("=" * 60)
     print("AI CALL SERVICE - COMPONENT VERIFICATION")
     print("=" * 60)
     print()
-    
+
     components = [
         ("Configuration", "config"),
         ("SIP Integration", "sip_integration"),
@@ -29,14 +30,14 @@ def main():
         ("Main Service", "main"),
         ("API Server", "api"),
     ]
-    
+
     results = []
     for name, module in components:
         results.append(check_component(name, module))
-    
+
     print()
     print("=" * 60)
-    
+
     if all(results):
         print("✓ ALL COMPONENTS VERIFIED SUCCESSFULLY")
         print("=" * 60)
@@ -62,6 +63,7 @@ def main():
         print("✗ SOME COMPONENTS FAILED VERIFICATION")
         print("=" * 60)
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

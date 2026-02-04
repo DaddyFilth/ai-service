@@ -11,14 +11,14 @@ async def test_multi_user():
     """Test multi-user API endpoints."""
     async with aiohttp.ClientSession() as session:
         print("=== Testing Multi-User API ===\n")
-        
+
         # Test 1: Health check
         print("1. Testing health check...")
         async with session.get(f"{BASE_URL}/health") as resp:
             data = await resp.json()
             print(f"   Status: {resp.status}")
             print(f"   Response: {json.dumps(data, indent=2)}\n")
-        
+
         # Test 2: Register user 1
         print("2. Registering user 1...")
         user1_data = {
@@ -42,7 +42,7 @@ async def test_multi_user():
                 error = await resp.text()
                 print(f"   Error: {error}\n")
                 return
-        
+
         # Test 3: Register user 2
         print("3. Registering user 2...")
         user2_data = {
@@ -60,13 +60,11 @@ async def test_multi_user():
                 print(f"   User created: {user2['username']}")
                 print(f"   API Key: {user2['api_key'][:20]}...")
                 print(f"   Token: {user2['token'][:20]}...\n")
-                user2_token = user2['token']
             else:
                 error = await resp.text()
                 print(f"   Error: {error}\n")
                 # Continue even if user 2 fails
-                user2_token = None
-        
+
         # Test 4: Login as user 1
         print("4. Testing login...")
         async with session.post(
@@ -80,7 +78,7 @@ async def test_multi_user():
             else:
                 error = await resp.text()
                 print(f"   Error: {error}\n")
-        
+
         # Test 5: Get profile (with JWT token)
         print("5. Getting user profile (JWT auth)...")
         headers = {"Authorization": f"Bearer {user1_token}"}
@@ -95,7 +93,7 @@ async def test_multi_user():
             else:
                 error = await resp.text()
                 print(f"   Error: {error}\n")
-        
+
         # Test 6: Simulate call for user 1 (with API key)
         print("6. Simulating call for user 1 (API key auth)...")
         headers = {"X-API-Key": user1_api_key}
@@ -116,7 +114,7 @@ async def test_multi_user():
             else:
                 error = await resp.text()
                 print(f"   Error: {error}\n")
-        
+
         # Test 7: Get call history for user 1
         print("7. Getting call history for user 1...")
         headers = {"Authorization": f"Bearer {user1_token}"}
@@ -129,22 +127,26 @@ async def test_multi_user():
                 history = await resp.json()
                 print(f"   Total calls: {history['total_calls']}")
                 if history['calls']:
-                    print(f"   Latest call: {json.dumps(history['calls'][0], indent=2)}\n")
+                    print(
+                        f"   Latest call: {
+                            json.dumps(
+                                history['calls'][0],
+                                indent=2)}\n")
                 else:
-                    print(f"   No calls yet\n")
+                    print("   No calls yet\n")
             else:
                 error = await resp.text()
                 print(f"   Error: {error}\n")
-        
+
         # Test 8: Try accessing without auth (should fail)
         print("8. Testing unauthorized access...")
         async with session.get(f"{BASE_URL}/user/profile") as resp:
             print(f"   Status: {resp.status} (expected 401)")
             if resp.status == 401:
-                print(f"   ✓ Properly rejected unauthorized request\n")
+                print("   ✓ Properly rejected unauthorized request\n")
             else:
-                print(f"   ✗ Security issue: should require authentication\n")
-        
+                print("   ✗ Security issue: should require authentication\n")
+
         print("=== Tests Complete ===")
 
 

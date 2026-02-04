@@ -12,6 +12,7 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
+
 def ensure_free_space(recordings_dir: Path, min_free_mb: int):
     """
     Ensure there is sufficient free disk space for recordings.
@@ -33,18 +34,20 @@ def ensure_free_space(recordings_dir: Path, min_free_mb: int):
 
 class MediaHandler:
     """Handles RTP media streams for audio processing."""
-    
+
     def __init__(self, recordings_dir: str = "./recordings"):
         """
         Initialize media handler.
-        
+
         Args:
             recordings_dir: Directory for storing media files
         """
         self.recordings_dir = Path(recordings_dir)
         self.recordings_dir.mkdir(parents=True, exist_ok=True)
         self.active_streams = {}
-        logger.info(f"Media handler initialized with recordings dir: {self.recordings_dir}")
+        logger.info(
+            f"Media handler initialized with recordings dir: {
+                self.recordings_dir}")
 
     async def capture_audio_stream(
         self,
@@ -53,11 +56,11 @@ class MediaHandler:
     ) -> str:
         """
         Capture audio from RTP stream.
-        
+
         Args:
             call_id: ID of the call
             duration: Duration to capture in seconds (None for continuous)
-            
+
         Returns:
             Path to the captured audio file
         """
@@ -65,7 +68,7 @@ class MediaHandler:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"audio_{call_id}_{timestamp}.wav"
         filepath = self.recordings_dir / filename
-        
+
         logger.info(f"Capturing audio stream for call {call_id} to {filepath}")
 
         if duration is None:
@@ -86,24 +89,25 @@ class MediaHandler:
                     * 32767
                     * math.sin(2 * math.pi * tone_hz * (frame_index / sample_rate))
                 )
-                wav_file.writeframesraw(value.to_bytes(2, byteorder="little", signed=True))
+                wav_file.writeframesraw(value.to_bytes(
+                    2, byteorder="little", signed=True))
 
         self.active_streams[call_id] = {
             "filepath": str(filepath),
             "status": "capturing",
             "start_time": datetime.now()
         }
-        
+
         if duration:
             await asyncio.sleep(min(duration, 0.1))
             await self.stop_capture(call_id)
-        
+
         return str(filepath)
-    
+
     async def stop_capture(self, call_id: str):
         """
         Stop capturing audio stream.
-        
+
         Args:
             call_id: ID of the call
         """
@@ -111,11 +115,11 @@ class MediaHandler:
             logger.info(f"Stopping audio capture for call {call_id}")
             self.active_streams[call_id]["status"] = "stopped"
             logger.info(f"Audio capture stopped for call {call_id}")
-    
+
     async def play_audio(self, call_id: str, audio_file: str):
         """
         Play audio file to the call.
-        
+
         Args:
             call_id: ID of the call
             audio_file: Path to audio file to play
@@ -126,11 +130,11 @@ class MediaHandler:
             raise FileNotFoundError(f"Audio file not found: {audio_file}")
         await asyncio.sleep(0.05)
         logger.info(f"Audio playback completed for call {call_id}")
-    
+
     async def stream_tts(self, call_id: str, text: str):
         """
         Generate and stream TTS audio to the call.
-        
+
         Args:
             call_id: ID of the call
             text: Text to convert to speech
@@ -156,6 +160,7 @@ class MediaHandler:
                     * 32767
                     * math.sin(2 * math.pi * tone_hz * (frame_index / sample_rate))
                 )
-                wav_file.writeframesraw(value.to_bytes(2, byteorder="little", signed=True))
+                wav_file.writeframesraw(value.to_bytes(
+                    2, byteorder="little", signed=True))
         await self.play_audio(call_id, str(filepath))
         logger.info(f"TTS streaming completed for call {call_id}")
