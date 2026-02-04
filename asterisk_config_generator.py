@@ -55,11 +55,34 @@ class AsteriskConfigGenerator:
         
     def generate_ari_conf(self):
         """Generate ari.conf for Asterisk REST Interface."""
-        password = settings.asterisk_password or 'CHANGE_THIS_PASSWORD'
-        password_warning = ""
-        
+        # Security: Never use a default password in production
+        # The password should be managed via environment variables only
         if not settings.asterisk_password:
-            password_warning = "; WARNING: Default password detected! Change this before production use!\n; Set ASTERISK_PASSWORD in your .env file\n"
+            password_placeholder = '<YOUR_ASTERISK_PASSWORD_FROM_ENV>'
+            password_warning = (
+                "; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+                "; SECURITY WARNING: No ASTERISK_PASSWORD set in .env file!\n"
+                "; You MUST set a strong password in your .env file before\n"
+                "; using this configuration in production.\n"
+                "; \n"
+                "; To generate a secure password, run:\n"
+                ";   python3 -c 'import secrets; print(secrets.token_hex(24))'\n"
+                "; \n"
+                "; Then add it to your .env file:\n"
+                ";   ASTERISK_PASSWORD=<generated_password>\n"
+                "; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+            )
+        else:
+            # Don't write the actual password to the config file
+            # Instead use a placeholder that requires manual configuration
+            password_placeholder = '<SET_FROM_ENV_ASTERISK_PASSWORD>'
+            password_warning = (
+                "; SECURITY NOTE: Password is configured in .env file.\n"
+                "; Replace the placeholder below with the value from:\n"
+                f";   ASTERISK_PASSWORD in your .env file\n"
+                "; \n"
+                "; NEVER commit the actual password to version control!\n"
+            )
         
         content = f"""[general]
 enabled = yes
@@ -68,12 +91,14 @@ pretty = yes
 {password_warning}[{settings.asterisk_username}]
 type = user
 read_only = no
-password = {password}
+password = {password_placeholder}
 """
         self._write_file("ari.conf", content)
         print("✓ Generated ari.conf")
         if not settings.asterisk_password:
-            print("  ⚠️  WARNING: Using default password - change before production use!")
+            print("  🔒 SECURITY WARNING: Set ASTERISK_PASSWORD in .env before production use!")
+        else:
+            print("  🔒 Password placeholder added - update manually with .env value")
         
     def generate_http_conf(self):
         """Generate http.conf for HTTP/WebSocket support."""
@@ -137,11 +162,34 @@ exten => _X.,1,NoOp(Default context - routing to AI)
         
     def generate_pjsip_conf(self):
         """Generate pjsip.conf for SIP trunk configuration."""
-        password = settings.asterisk_password or 'CHANGE_THIS_PASSWORD'
-        password_warning = ""
-        
+        # Security: Never use a default password in production
+        # The password should be managed via environment variables only
         if not settings.asterisk_password:
-            password_warning = "; WARNING: Default password detected! Change this before production use!\n; Set ASTERISK_PASSWORD in your .env file\n\n"
+            password_placeholder = '<YOUR_ASTERISK_PASSWORD_FROM_ENV>'
+            password_warning = (
+                "; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+                "; SECURITY WARNING: No ASTERISK_PASSWORD set in .env file!\n"
+                "; You MUST set a strong password in your .env file before\n"
+                "; using this configuration in production.\n"
+                "; \n"
+                "; To generate a secure password, run:\n"
+                ";   python3 -c 'import secrets; print(secrets.token_hex(24))'\n"
+                "; \n"
+                "; Then add it to your .env file:\n"
+                ";   ASTERISK_PASSWORD=<generated_password>\n"
+                "; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n"
+            )
+        else:
+            # Don't write the actual password to the config file
+            # Instead use a placeholder that requires manual configuration
+            password_placeholder = '<SET_FROM_ENV_ASTERISK_PASSWORD>'
+            password_warning = (
+                "; SECURITY NOTE: Password is configured in .env file.\n"
+                "; Replace the placeholder below with the value from:\n"
+                f";   ASTERISK_PASSWORD in your .env file\n"
+                "; \n"
+                "; NEVER commit the actual password to version control!\n\n"
+            )
         
         content = f""";
 ; PJSIP Configuration for AI Call Service
@@ -178,7 +226,7 @@ max_contacts = 1
 type = auth
 auth_type = userpass
 username = {settings.asterisk_username}
-password = {password}
+password = {password_placeholder}
 
 ; Example SIP trunk configuration (customize for your provider)
 ; [trunk-example]
@@ -203,7 +251,9 @@ password = {password}
         self._write_file("pjsip.conf", content)
         print("✓ Generated pjsip.conf")
         if not settings.asterisk_password:
-            print("  ⚠️  WARNING: Using default password - change before production use!")
+            print("  🔒 SECURITY WARNING: Set ASTERISK_PASSWORD in .env before production use!")
+        else:
+            print("  🔒 Password placeholder added - update manually with .env value")
         
     def generate_install_script(self):
         """Generate installation script for the configuration files."""
@@ -400,7 +450,7 @@ If you prefer to manually install:
 
 - Enables the REST API for programmatic call control
 - Username: {settings.asterisk_username}
-- Password: {'(from .env)' if settings.asterisk_password else 'CHANGE_THIS_PASSWORD'}
+- Password: Managed via ASTERISK_PASSWORD in .env file (never hardcoded in code; empty allowed for development only)
 - Port: 8088 (HTTP)
 
 ### Dialplan (extensions.conf)
@@ -504,12 +554,28 @@ sudo asterisk -rx "core set verbose 5"
 
 ## Security Notes
 
-⚠️ **Important Security Considerations:**
+⚠️ **CRITICAL Security Considerations:**
 
-1. Change default passwords in `ari.conf` and `pjsip.conf`
-2. Use firewall rules to restrict access to port 8088
-3. Consider using TLS for ARI connections in production
-4. Regularly update Asterisk to get security patches
+1. **Password Management:**
+   - NEVER commit your .env file to version control (it's in .gitignore)
+   - Use strong passwords (minimum 12 characters, generated via setup.sh)
+   - Generated config files use placeholders - replace with actual .env values manually
+   - Change default passwords in `ari.conf` and `pjsip.conf` before production
+
+2. **Network Security:**
+   - Use firewall rules to restrict access to port 8088 (ARI)
+   - Consider using TLS for ARI connections in production
+   - Restrict SIP port access to trusted networks only
+
+3. **System Security:**
+   - Regularly update Asterisk to get security patches
+   - Set .env file permissions to 600 (owner-only): `chmod 600 .env`
+   - Monitor Asterisk logs for suspicious activity
+
+4. **Password Requirements:**
+   - Minimum 12 characters
+   - No common weak patterns (e.g., "password", "admin", "123456")
+   - Auto-generated passwords meet these requirements
 
 ## Support
 

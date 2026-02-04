@@ -28,6 +28,10 @@ env/
 # Environment variables
 .env
 
+# User database
+users.db
+users.db-journal
+
 # Recordings and media files
 recordings/
 *.wav

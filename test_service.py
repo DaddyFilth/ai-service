@@ -5,16 +5,99 @@ import asyncio
 from pathlib import Path
 import sys
 import shutil
+import os
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import settings
+from config import settings, validate_password_strength
 from sip_integration import MISSING_PASSWORD_WARNING
 from decision_engine import DecisionEngine
 from action_router import ActionRouter
 from sip_integration import SIPIntegration
 from media_handler import MediaHandler, ensure_free_space
+
+
+class TestPasswordValidation:
+    """Test password validation functions."""
+    
+    def test_empty_password(self):
+        """Test that empty password is rejected."""
+        is_valid, error_msg = validate_password_strength("")
+        assert not is_valid
+        assert "empty" in error_msg.lower()
+    
+    def test_short_password(self):
+        """Test that short password is rejected."""
+        is_valid, error_msg = validate_password_strength("short")
+        assert not is_valid
+        assert "12 characters" in error_msg
+    
+    def test_weak_pattern_password(self):
+        """Test that password with weak pattern is rejected."""
+        is_valid, error_msg = validate_password_strength("password123456")
+        assert not is_valid
+        assert "weak pattern" in error_msg.lower()
+        assert "password" in error_msg.lower()
+    
+    def test_weak_pattern_change_this(self):
+        """Test that CHANGE_THIS pattern is rejected."""
+        is_valid, error_msg = validate_password_strength("CHANGE_THIS_SECURE")
+        assert not is_valid
+        assert "weak pattern" in error_msg.lower()
+        assert "change_this" in error_msg.lower()
+    
+    def test_strong_password(self):
+        """Test that strong password is accepted."""
+        is_valid, error_msg = validate_password_strength("aB3$xZ9@mK2#pL7&qW5!")
+        assert is_valid
+        assert error_msg == ""
+    
+    def test_long_random_password(self):
+        """Test that long random password is accepted."""
+        is_valid, error_msg = validate_password_strength("a1b2c3d4e5f6g7h8i9j0k1l2")
+        assert is_valid
+        assert error_msg == ""
+
+
+class TestConfigWithPassword:
+    """Test configuration with password validation."""
+    
+    def test_config_rejects_weak_password(self, monkeypatch):
+        """Test that config rejects weak passwords."""
+        # Clear any cached settings
+        import sys
+        if 'config' in sys.modules:
+            del sys.modules['config']
+        
+        monkeypatch.setenv("ASTERISK_PASSWORD", "weak")
+        with pytest.raises(ValueError, match="does not meet security requirements"):
+            from config import Settings
+            Settings()
+    
+    def test_config_accepts_strong_password(self, monkeypatch):
+        """Test that config accepts strong passwords."""
+        # Clear any cached settings
+        import sys
+        if 'config' in sys.modules:
+            del sys.modules['config']
+        
+        monkeypatch.setenv("ASTERISK_PASSWORD", "aB3$xZ9@mK2#pL7&qW5!")
+        from config import Settings
+        settings = Settings()
+        assert settings.asterisk_password == "aB3$xZ9@mK2#pL7&qW5!"
+    
+    def test_config_allows_empty_password(self, monkeypatch):
+        """Test that config allows empty password (for development only)."""
+        # Clear any cached settings
+        import sys
+        if 'config' in sys.modules:
+            del sys.modules['config']
+        
+        monkeypatch.setenv("ASTERISK_PASSWORD", "")
+        from config import Settings
+        settings = Settings()
+        assert settings.asterisk_password == ""
 
 
 class TestDecisionEngine:
