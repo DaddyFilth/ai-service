@@ -293,7 +293,7 @@ config = get_config()
 
 ### Branch Naming
 - Feature branches: `feature/description`
-- Copilot-generated branches: `copilot/description` (for AI-generated changes)
+- AI-assisted changes: `copilot/description` (branches created when using GitHub Copilot coding agent)
 - Bug fixes: `fix/description`
 - Documentation: `docs/description`
 
