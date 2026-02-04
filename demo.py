@@ -1,7 +1,6 @@
 """Example usage and demonstration of the AI Call Service."""
 import asyncio
 import logging
-from pathlib import Path
 import json
 
 from main import AICallService
@@ -19,11 +18,11 @@ async def demo_call_flow():
     logger.info("=" * 60)
     logger.info("AI CALL SERVICE DEMONSTRATION")
     logger.info("=" * 60)
-    
+
     # Initialize service
     service = AICallService()
     await service.start()
-    
+
     # Example scenarios
     scenarios = [
         {
@@ -60,25 +59,25 @@ async def demo_call_flow():
             "description": "Caller needs more information"
         }
     ]
-    
+
     # Process each scenario
     for i, scenario in enumerate(scenarios, 1):
         logger.info("")
         logger.info(f"Scenario {i}: {scenario['name']}")
         logger.info(f"Description: {scenario['description']}")
         logger.info("-" * 60)
-        
+
         try:
             result = await service.handle_call(scenario["call_data"])
             logger.info(f"Result: {json.dumps(result, indent=2)}")
         except Exception as e:
             logger.error(f"Error in scenario {i}: {e}")
-        
+
         # Wait between scenarios
         await asyncio.sleep(1)
-    
+
     await service.stop()
-    
+
     logger.info("")
     logger.info("=" * 60)
     logger.info("DEMONSTRATION COMPLETE")
@@ -88,7 +87,7 @@ async def demo_call_flow():
 async def demo_individual_components():
     """Demonstrate individual components."""
     logger.info("\n=== Testing Individual Components ===\n")
-    
+
     # Test SIP Integration
     from sip_integration import SIPIntegration
     logger.info("1. SIP Integration")
@@ -100,21 +99,21 @@ async def demo_individual_components():
         "called_number": "+0987654321"
     })
     logger.info(f"   Call context: {call_context}")
-    
+
     # Test Media Handler
     from media_handler import MediaHandler
     logger.info("\n2. Media Handler")
     media = MediaHandler()
     await media.stream_tts("comp_test_1", "This is a test message")
     logger.info("   TTS streaming completed")
-    
+
     # Test Decision Engine
     from decision_engine import DecisionEngine
     logger.info("\n3. Decision Engine")
     engine = DecisionEngine()
     decision = engine._parse_decision("I need to speak with sales", "original")
     logger.info(f"   Decision: {decision}")
-    
+
     # Test Action Router
     from action_router import ActionRouter
     logger.info("\n4. Action Router")
@@ -129,7 +128,7 @@ async def demo_individual_components():
 async def main():
     """Main demo entry point."""
     import sys
-    
+
     if len(sys.argv) > 1 and sys.argv[1] == "--components":
         await demo_individual_components()
     else:
