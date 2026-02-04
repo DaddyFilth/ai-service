@@ -44,7 +44,9 @@ def sanitize_filename(filename: str) -> str:
     
     # Ensure we have a valid filename after sanitization
     if not sanitized or sanitized == '_' * len(sanitized):
-        raise ValueError(f"Invalid filename after sanitization: {filename}")
+        # Log the original filename for debugging but don't expose it to the caller
+        logger.warning(f"Invalid filename rejected during sanitization: {filename}")
+        raise ValueError("Invalid filename provided")
     
     return sanitized
 
@@ -188,10 +190,18 @@ class MediaHandler:
     async def play_audio(self, call_id: str, audio_file: str):
         """
         Play audio file to the call.
+        
+        Security: For security reasons, only audio files within the recordings
+        directory can be played. This prevents path traversal attacks that could
+        access arbitrary files on the system.
 
         Args:
             call_id: ID of the call
-            audio_file: Path to audio file to play
+            audio_file: Path to audio file to play (must be within recordings_dir)
+            
+        Raises:
+            ValueError: If the audio file is outside the recordings directory
+            FileNotFoundError: If the audio file does not exist
         """
         logger.info(f"Playing audio {audio_file} to call {call_id}")
         path = Path(audio_file)
@@ -200,7 +210,7 @@ class MediaHandler:
         try:
             sanitized_path = sanitize_path(path, self.recordings_dir)
         except ValueError as e:
-            logger.error(f"Path validation failed: {e}")
+            logger.error(f"Path validation failed for audio playback")
             raise ValueError(f"Invalid audio file path: {e}")
         
         if not sanitized_path.exists():

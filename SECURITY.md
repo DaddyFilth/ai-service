@@ -88,7 +88,23 @@ When deploying this service:
    - Configure CORS headers appropriately for your use case
    - Never use wildcard (`*`) origins in production
    - Specify exact allowed origins
-   - Example: `app.router.add_route('*', '/', handler, name='...', allow_credentials=True)`
+   - Use `aiohttp-cors` middleware for proper CORS support
+   - Example configuration:
+     ```python
+     import aiohttp_cors
+     
+     cors = aiohttp_cors.setup(app, defaults={
+         "https://yourdomain.com": aiohttp_cors.ResourceOptions(
+             allow_credentials=True,
+             expose_headers="*",
+             allow_headers="*",
+         )
+     })
+     
+     # Apply CORS to routes
+     for route in list(app.router.routes()):
+         cors.add(route)
+     ```
 
 ## Known Security Considerations
 
