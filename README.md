@@ -167,6 +167,35 @@ For production deployment, manually configure Asterisk:
 
 See [INSTALLATION.md](INSTALLATION.md) for detailed manual configuration instructions.
 
+## Security
+
+This project implements multiple security measures to protect your SIP credentials:
+
+### Password Security
+- **Automatic Validation**: Passwords are validated for strength at startup
+- **Minimum 12 characters** with no common weak patterns
+- **Auto-generated passwords** using cryptographically secure random generation
+- **Never hardcoded**: All passwords stored in `.env` file (excluded from git)
+
+### Configuration Protection
+- **`.env` file permissions** automatically set to 600 (owner-only)
+- **Generated Asterisk configs** use placeholders, never actual passwords
+- **Clear security warnings** when passwords not properly configured
+
+### Best Practices
+```bash
+# Generate a secure password
+python3 -c 'import secrets; print(secrets.token_hex(24))'
+
+# Set secure file permissions
+chmod 600 .env
+
+# Never commit sensitive files
+git status  # .env should not appear (it's in .gitignore)
+```
+
+See [SECURITY.md](SECURITY.md) for detailed security information and vulnerability reporting.
+
 ## Development
 
 The service is modular and each component can be tested independently:
