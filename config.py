@@ -1,10 +1,42 @@
 """Configuration management for the AI service."""
 import os
+import re
 from typing import Optional
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+
+
+def validate_password_strength(password: str) -> tuple[bool, str]:
+    """
+    Validate that a password meets security requirements.
+    
+    Args:
+        password: Password to validate
+        
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    if not password:
+        return False, "Password cannot be empty"
+    
+    if len(password) < 12:
+        return False, "Password must be at least 12 characters long"
+    
+    # Check for common weak patterns
+    weak_patterns = [
+        "password", "admin", "123456", "qwerty", "letmein", 
+        "welcome", "monkey", "dragon", "master", "sunshine",
+        "CHANGE_THIS", "CHANGE_ME", "DEFAULT"
+    ]
+    
+    password_lower = password.lower()
+    for pattern in weak_patterns:
+        if pattern in password_lower:
+            return False, f"Password contains weak pattern: {pattern}"
+    
+    return True, ""
 
 
 class Settings:
@@ -22,6 +54,15 @@ class Settings:
             )
         self.asterisk_username: str = os.getenv("ASTERISK_USERNAME", "ai_service")
         self.asterisk_password: str = os.getenv("ASTERISK_PASSWORD", "")
+        
+        # Validate password strength if password is provided
+        if self.asterisk_password:
+            is_valid, error_msg = validate_password_strength(self.asterisk_password)
+            if not is_valid:
+                raise ValueError(
+                    f"ASTERISK_PASSWORD does not meet security requirements: {error_msg}. "
+                    "Please use a strong password (min 12 characters, no common weak patterns)."
+                )
         
         # Ollama Configuration
         self.ollama_host: str = os.getenv("OLLAMA_HOST", "http://localhost:11434")
