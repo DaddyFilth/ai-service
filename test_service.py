@@ -1,15 +1,16 @@
 """Tests for the AI Call Service components."""
-from media_handler import MediaHandler, ensure_free_space
-from sip_integration import SIPIntegration
-from action_router import ActionRouter
-from decision_engine import DecisionEngine
-from sip_integration import MISSING_PASSWORD_WARNING
-from config import settings, validate_password_strength
 import logging
-import pytest
-from pathlib import Path
 import sys
 import shutil
+from pathlib import Path
+
+import pytest
+
+from media_handler import MediaHandler, ensure_free_space
+from sip_integration import SIPIntegration, MISSING_PASSWORD_WARNING
+from action_router import ActionRouter
+from decision_engine import DecisionEngine
+from config import settings, validate_password_strength
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))

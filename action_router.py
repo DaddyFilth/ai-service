@@ -67,12 +67,11 @@ class ActionRouter:
                 f"Unknown action: {action}, defaulting to ask_question")
             return await self.ask_question(call_context, {})
 
-    async def forward_call(self,
-                           call_context: Dict[str,
-                                              Any],
-                           parameters: Dict[str,
-                                            Any]) -> Dict[str,
-                                                          Any]:
+    async def forward_call(
+            self,
+            call_context: Dict[str, Any],
+            parameters: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Forward the call to another number or extension.
 
@@ -141,12 +140,11 @@ class ActionRouter:
 
         return result
 
-    async def ask_question(self,
-                           call_context: Dict[str,
-                                              Any],
-                           parameters: Dict[str,
-                                            Any]) -> Dict[str,
-                                                          Any]:
+    async def ask_question(
+            self,
+            call_context: Dict[str, Any],
+            parameters: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Ask the caller a question using TTS.
 
