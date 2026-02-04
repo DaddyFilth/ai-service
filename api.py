@@ -354,10 +354,11 @@ async def get_user_call_history(request):
     try:
         limit = int(request.query.get('limit', '50'))
         # Ensure limit is positive and within bounds
-        if limit < 1:
-            limit = 50
-        if limit > 500:
-            limit = 500
+        if limit < 1 or limit > 500:
+            return web.json_response(
+                {"detail": "Invalid limit parameter - must be between 1 and 500"},
+                status=400
+            )
     except ValueError:
         return web.json_response(
             {"detail": "Invalid limit parameter - must be an integer"},
