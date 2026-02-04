@@ -257,7 +257,7 @@ config = get_config()
 
 ### Ollama (AI Engine)
 - Local LLM server for decision-making
-- Install: https://ollama.ai
+- Install: https://ollama.com/download
 - Pull model: `ollama pull llama2`
 - Default endpoint: http://localhost:11434
 
@@ -292,7 +292,8 @@ config = get_config()
 ## Git Workflow
 
 ### Branch Naming
-- Feature branches: `feature/description` or `copilot/description`
+- Feature branches: `feature/description`
+- Copilot-generated branches: `copilot/description` (for AI-generated changes)
 - Bug fixes: `fix/description`
 - Documentation: `docs/description`
 
