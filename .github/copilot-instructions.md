@@ -268,7 +268,7 @@ Configuration is managed through `.env` file (use `.env.example` as template):
 - `OLLAMA_MODEL`: AI model name (default: llama2)
 
 **Service Settings (Optional):**
-- `SERVICE_HOST`: API bind address (default: 0.0.0.0)
+- `SERVICE_HOST`: API bind address (default: 127.0.0.1)
 - `SERVICE_PORT`: API server port (default: 8000)
 - `MIN_FREE_SPACE_MB`: Min disk space for recordings (default: 100)
 - `WHISPER_MODEL`: Whisper model size (default: base)
@@ -325,6 +325,8 @@ config = get_config()
 - Install: https://ollama.com/download
 - Pull model: `ollama pull llama2`
 - Default endpoint: http://localhost:11434
+
+Use clear, plural nouns for resources, e.g. /api/v1/users, /api/v1/orders, not /getUsers or /createOrder.����Keep everything lowercase and avoid weird characters; use hyphens if you need separators (e.g. /reset-tokens).����Include a standard health‑check endpoint like /health or /healthz that returns a lightweight status for monitoring.����Put versioning in the path by default (e.g. /api/v1/...) so you can introduce /api/v2/... later without breaking clients.��Avoid embedding credentials or sensitive info in endpoint paths (IDs are fine; secrets are not) and leave security to headers and bodies.��
 
 ### Whisper (Speech-to-Text)
 - OpenAI Whisper for transcription
