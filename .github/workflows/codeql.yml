@@ -75,6 +75,14 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    # Setup JDK for Java/Kotlin analysis (required for autobuild)
+    - name: Setup JDK 17
+      if: matrix.language == 'java-kotlin'
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4

@@ -34,8 +34,8 @@ async def test_multi_user():
             if resp.status == 200:
                 user1 = await resp.json()
                 print(f"   User created: {user1['username']}")
-                print(f"   API Key: {user1['api_key'][:20]}...")
-                print(f"   Token: {user1['token'][:20]}...\n")
+                print("   API Key: <redacted>")
+                print("   Token: <redacted>\n")
                 user1_token = user1['token']
                 user1_api_key = user1['api_key']
             else:
@@ -58,8 +58,8 @@ async def test_multi_user():
             if resp.status == 200:
                 user2 = await resp.json()
                 print(f"   User created: {user2['username']}")
-                print(f"   API Key: {user2['api_key'][:20]}...")
-                print(f"   Token: {user2['token'][:20]}...\n")
+                print("   API Key: <redacted>")
+                print("   Token: <redacted>\n")
             else:
                 error = await resp.text()
                 print(f"   Error: {error}\n")
