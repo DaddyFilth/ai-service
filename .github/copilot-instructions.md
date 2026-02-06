@@ -507,10 +507,8 @@ Before finalizing ANY code changes, complete this security checklist:
 ### Pre-Commit Security Review
 1. **Code Review**:
    ```bash
-   # Check for hardcoded secrets
-   grep -r "password.*=" . --include="*.py" | grep -v ".env"
-   grep -r "secret.*=" . --include="*.py" | grep -v ".env"
-   grep -r "token.*=" . --include="*.py" | grep -v ".env"
+   # Check for hardcoded secrets (string literals only)
+   grep -rE '(password|secret|token|key)\s*=\s*["\047]' . --include="*.py" --exclude='.env' | grep -v "test_" | grep -v "#"
    
    # Verify .gitignore is protecting sensitive files
    git status --ignored
@@ -535,14 +533,21 @@ Before finalizing ANY code changes, complete this security checklist:
    # Check what would be committed
    git --no-pager diff --cached
    
-   # Ensure no .env or secrets
-   git --no-pager diff --cached | grep -E "(password|secret|token|key)" || echo "No secrets found"
+   # Use specialized secret scanning tool (recommended)
+   # pip install truffleHog
+   # trufflehog filesystem . --only-verified
+   
+   # Or basic keyword check (may have false positives)
+   git --no-pager diff --cached | grep -iE '(password|secret|token|api[_-]?key)\s*[:=]\s*["\047]' || echo "No obvious secrets detected"
    ```
 
 5. **File Permissions**:
    ```bash
-   # Verify .env is protected
-   ls -la .env 2>/dev/null && echo "WARNING: Check .env permissions (should be 600)"
+   # Verify .env has correct permissions (600)
+   if [ -f .env ]; then
+     PERMS=$(stat -c %a .env 2>/dev/null || stat -f %A .env 2>/dev/null)
+     [ "$PERMS" != "600" ] && echo "WARNING: .env permissions should be 600 (currently $PERMS)" || echo "✓ .env permissions correct"
+   fi
    ```
 
 ### Security-First Development Rules
