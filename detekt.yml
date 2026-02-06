@@ -514,14 +514,14 @@ style:
   ForbiddenMethodCall:
     active: false
   ForbiddenPublicDataClass:
-    active: true
+    active: false
     excludes: ['**']
   ForbiddenVoid:
     active: false
   FunctionOnlyReturningConstant:
     active: false
   LibraryCodeMustSpecifyReturnType:
-    active: true
+    active: false
     excludes: ['**']
   LoopWithTooManyJumpStatements:
     active: true
