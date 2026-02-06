@@ -359,7 +359,12 @@ async def get_user_call_history(request):
         # Ensure limit is positive and within bounds
         if limit < 1 or limit > MAX_CALL_HISTORY_LIMIT:
             return web.json_response(
-                {"detail": f"Invalid limit parameter - must be between 1 and {MAX_CALL_HISTORY_LIMIT}"},
+                {
+                    "detail": (
+                        f"Invalid limit parameter - must be between 1 "
+                        f"and {MAX_CALL_HISTORY_LIMIT}"
+                    )
+                },
                 status=400
             )
     except ValueError:

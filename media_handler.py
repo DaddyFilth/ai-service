@@ -16,59 +16,59 @@ logger = logging.getLogger(__name__)
 def sanitize_filename(filename: str) -> str:
     """
     Sanitize a filename to prevent directory traversal.
-    
+
     Args:
         filename: Filename to sanitize
-        
+
     Returns:
         Sanitized filename with only safe characters
-        
+
     Raises:
         ValueError: If the filename is invalid
     """
     if not filename:
         raise ValueError("Filename cannot be empty")
-    
+
     # First, check for and remove path traversal patterns
     # Replace .. with single underscore to avoid __ in filenames
     filename = filename.replace("..", "_")
     filename = filename.replace("/", "_")
     filename = filename.replace("\\", "_")
-    
+
     # Remove any remaining unsafe characters, keeping dots for extensions
     safe_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.")
     sanitized = ''.join(c if c in safe_chars else '_' for c in filename)
-    
+
     # Remove leading dots to prevent hidden files
     sanitized = sanitized.lstrip('.')
-    
+
     # Ensure we have a valid filename after sanitization
     if not sanitized or sanitized == '_' * len(sanitized):
         # Log a generic message for security - detailed logging could expose attack patterns
         logger.warning(f"Invalid filename rejected during sanitization (length: {len(filename)})")
         raise ValueError("Invalid filename provided")
-    
+
     return sanitized
 
 
 def sanitize_path(file_path: Path, base_dir: Path) -> Path:
     """
     Sanitize a file path to prevent directory traversal attacks.
-    
+
     Args:
         file_path: Path to sanitize
         base_dir: Base directory that the path should be within
-        
+
     Returns:
         Sanitized path
-        
+
     Raises:
         ValueError: If the path attempts to escape the base directory
     """
     # Resolve to absolute path
     abs_file_path = file_path.resolve()
     abs_base_dir = base_dir.resolve()
-    
+
     # Check if the resolved path is within the base directory
     try:
         abs_file_path.relative_to(abs_base_dir)
@@ -79,7 +79,7 @@ def sanitize_path(file_path: Path, base_dir: Path) -> Path:
             f"base directory {base_dir}"
         )
         raise ValueError("Invalid file path: access denied")
-    
+
     return abs_file_path
 
 
@@ -135,10 +135,10 @@ class MediaHandler:
             Path to the captured audio file
         """
         ensure_free_space(self.recordings_dir, settings.min_free_space_mb)
-        
+
         # Sanitize call_id to prevent path traversal
         safe_call_id = sanitize_filename(call_id)
-        
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"audio_{safe_call_id}_{timestamp}.wav"
         filepath = self.recordings_dir / filename
@@ -193,7 +193,7 @@ class MediaHandler:
     async def play_audio(self, call_id: str, audio_file: str):
         """
         Play audio file to the call.
-        
+
         Security: For security reasons, only audio files within the recordings
         directory can be played. This prevents path traversal attacks that could
         access arbitrary files on the system.
@@ -201,21 +201,21 @@ class MediaHandler:
         Args:
             call_id: ID of the call
             audio_file: Path to audio file to play (must be within recordings_dir)
-            
+
         Raises:
             ValueError: If the audio file is outside the recordings directory
             FileNotFoundError: If the audio file does not exist
         """
         logger.info(f"Playing audio to call {call_id}")
         path = Path(audio_file)
-        
+
         # Sanitize path to prevent directory traversal
         try:
             sanitized_path = sanitize_path(path, self.recordings_dir)
         except ValueError as e:
             logger.error(f"Path validation failed for audio playback on call {call_id}")
             raise ValueError(f"Invalid audio file path: {e}")
-        
+
         if not sanitized_path.exists():
             logger.error(f"Audio file not found for call {call_id}")
             raise FileNotFoundError("Audio file not found")
@@ -233,10 +233,10 @@ class MediaHandler:
         logger.info(f"Streaming TTS to call {call_id}: {text}")
         if not text.strip():
             raise ValueError("text is required for TTS streaming")
-        
+
         # Sanitize call_id to prevent path traversal
         safe_call_id = sanitize_filename(call_id)
-        
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"tts_{safe_call_id}_{timestamp}.wav"
         filepath = self.recordings_dir / filename
