@@ -89,7 +89,7 @@ jobs:
     - name: Run Detekt
       continue-on-error: true
       run: |
-        detekt --input ${{ github.workspace }}/android-app/app/src --config ${{ github.workspace }}/detekt.yml --excludes '**/build/**,**/.gradle/**' --report sarif:${{ github.workspace }}/detekt.sarif.json
+        detekt --input ${{ github.workspace }}/android-app/app/src --config ${{ github.workspace }}/config/detekt/detekt.yml --excludes '**/build/**,**/.gradle/**' --report sarif:${{ github.workspace }}/detekt.sarif.json
 
     # Modifies the SARIF output produced by Detekt so that absolute URIs are relative
     # This is so we can easily map results onto their source files
