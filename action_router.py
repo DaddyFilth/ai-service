@@ -116,10 +116,10 @@ class ActionRouter:
         """
         ensure_free_space(self.recordings_dir, self.min_free_space_mb)
         call_id = call_context.get("call_id", "unknown")
-        
+
         # Sanitize call_id to prevent path traversal
         safe_call_id = sanitize_filename(call_id)
-        
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"voicemail_{safe_call_id}_{timestamp}.wav"
         filepath = self.recordings_dir / filename
