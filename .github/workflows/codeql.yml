@@ -68,28 +68,17 @@ jobs:
     #   uses: actions/setup-example@v1
     
     # Setup Java for Android/Kotlin autobuild
-    - name: Setup Java
-      if: matrix.language == 'java-kotlin'
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-
-    # Setup JDK for Java/Kotlin analysis (required for autobuild)
-    - name: Setup JDK 17
-      if: matrix.language == 'java-kotlin'
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-
-    # Setup Java 17 for java-kotlin language analysis
     - name: Setup Java 17
       if: matrix.language == 'java-kotlin'
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
+
+    # Setup Android SDK for Android/Kotlin autobuild
+    - name: Install Android SDK
+      if: matrix.language == 'java-kotlin'
+      uses: android-actions/setup-android@v3
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
