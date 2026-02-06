@@ -238,7 +238,7 @@ exceptions:
 formatting:
   active: true
   android: true
-  autoCorrect: true
+  autoCorrect: false
   AnnotationOnSeparateLine:
     active: false
   AnnotationSpacing:
@@ -515,14 +515,12 @@ style:
     active: false
   ForbiddenPublicDataClass:
     active: false
-    excludes: ['**']
   ForbiddenVoid:
     active: false
   FunctionOnlyReturningConstant:
     active: false
   LibraryCodeMustSpecifyReturnType:
     active: false
-    excludes: ['**']
   LoopWithTooManyJumpStatements:
     active: true
     maxJumpCount: 1
