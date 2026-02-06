@@ -508,7 +508,7 @@ Before finalizing ANY code changes, complete this security checklist:
 1. **Code Review**:
    ```bash
    # Check for hardcoded secrets (string literals only)
-   grep -rE '(password|secret|token|key)\s*=\s*["\047]' . --include="*.py" --exclude='.env' | grep -v "test_" | grep -v "#"
+   grep -rE '(password|secret|token|key)\s*=\s*["\047]' . --include="*.py" | grep -v "test_" | grep -v '^\s*#'
    
    # Verify .gitignore is protecting sensitive files
    git status --ignored
